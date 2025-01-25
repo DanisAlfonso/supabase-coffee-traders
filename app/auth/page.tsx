@@ -33,7 +33,7 @@ export default function AuthPage() {
             <div className="mt-6">
               <button
                 onClick={() => setIsSignIn(!isSignIn)}
-                className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-brown-600 dark:text-brown-400 bg-brown-50 dark:bg-gray-700 hover:bg-brown-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brown-500 dark:focus:ring-offset-gray-800"
+                className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-brown-800 dark:text-brown-400 bg-brown-50 dark:bg-gray-700 hover:bg-brown-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brown-500 dark:focus:ring-offset-gray-800"
               >
                 {isSignIn ? 'Create an account' : 'Sign in to existing account'}
               </button>
