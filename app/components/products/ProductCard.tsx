@@ -75,19 +75,19 @@ export default function ProductCard({
             {description}
           </p>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-lg font-bold">
               €{price_eur.toFixed(2)}
             </span>
             <span className="text-sm text-muted-foreground">{origin_country}</span>
           </div>
+          <button
+            onClick={handleAddToCart}
+            className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
+          >
+            Add to Cart
+          </button>
         </div>
-        <button
-          onClick={handleAddToCart}
-          className="w-full bg-primary text-primary-foreground px-4 py-2 mt-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
-        >
-          Add to Cart
-        </button>
       </div>
     </div>
   );
