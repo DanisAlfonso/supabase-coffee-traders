@@ -8,7 +8,7 @@ const dummyProducts = [
     name: 'Colombian Supremo',
     description: 'A rich and full-bodied coffee with caramel sweetness and a smooth finish.',
     price_eur: 14.99,
-    image_url: '/products/placeholder.jpg',
+    image_url: '/products/colombian-supremo.jpg',
     origin_country: 'Colombia',
     origin_flag_url: '/flags/co.svg'
   },
@@ -17,7 +17,7 @@ const dummyProducts = [
     name: 'Ethiopian Yirgacheffe',
     description: 'Delicate floral and citrus notes with a wine-like acidity.',
     price_eur: 16.99,
-    image_url: '/products/placeholder.jpg',
+    image_url: '/products/ethiopian.jpg',
     origin_country: 'Ethiopia',
     origin_flag_url: '/flags/et.svg'
   },
@@ -26,7 +26,7 @@ const dummyProducts = [
     name: 'Guatemala Antigua',
     description: 'Complex spiciness with a subtle chocolate undertone.',
     price_eur: 15.99,
-    image_url: '/products/placeholder.jpg',
+    image_url: '/products/guatemala-antigua.jpg',
     origin_country: 'Guatemala',
     origin_flag_url: '/flags/gt.svg'
   },
@@ -35,7 +35,7 @@ const dummyProducts = [
     name: 'Costa Rica Tarrazu',
     description: 'Bright acidity with hints of citrus and dark chocolate.',
     price_eur: 15.49,
-    image_url: '/products/placeholder.jpg',
+    image_url: '/products/costa-rica-tarrazu.jpg',
     origin_country: 'Costa Rica',
     origin_flag_url: '/flags/cr.svg'
   },
@@ -44,7 +44,7 @@ const dummyProducts = [
     name: 'Kenya AA',
     description: 'Bold, full-bodied with wine-like acidity and berry notes.',
     price_eur: 17.99,
-    image_url: '/products/placeholder.jpg',
+    image_url: '/products/kenya-aa.jpg',
     origin_country: 'Kenya',
     origin_flag_url: '/flags/ke.svg'
   },
@@ -53,7 +53,7 @@ const dummyProducts = [
     name: 'Brazil Santos',
     description: 'Smooth, mild and sweet with notes of nuts and chocolate.',
     price_eur: 13.99,
-    image_url: '/products/placeholder.jpg',
+    image_url: '/products/brasil-santos.jpeg',
     origin_country: 'Brazil',
     origin_flag_url: '/flags/br.svg'
   }
