@@ -6,6 +6,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function SignInForm() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,7 @@ export function SignInForm() {
     e.preventDefault();
     try {
       await signIn(email, password);
+      router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
