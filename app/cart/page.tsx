@@ -3,9 +3,41 @@
 import { useCart } from '@/lib/cart-context';
 import Image from 'next/image';
 import Link from 'next/link';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart();
+
+  const handleCheckout = async () => {
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error('Stripe failed to initialize.');
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items }),
+      });
+
+      const { sessionId, error } = await response.json();
+      if (error) throw new Error(error);
+
+      const result = await stripe.redirectToCheckout({
+        sessionId,
+      });
+
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to checkout. Please try again.');
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -95,7 +127,7 @@ export default function CartPage() {
 
             <button
               className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
-              onClick={() => alert('Checkout functionality coming soon!')}
+              onClick={handleCheckout}
             >
               Proceed to Checkout
             </button>
