@@ -4,10 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
+import { useCart } from '@/lib/cart-context';
+import { ShoppingCart } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { items } = useCart();
+
+  const itemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -27,6 +32,14 @@ export default function Header() {
             <Link href="/products" className="text-foreground hover:text-primary transition-colors duration-200">Products</Link>
             <Link href="/about" className="text-foreground hover:text-primary transition-colors duration-200">About</Link>
             <Link href="/contact" className="text-foreground hover:text-primary transition-colors duration-200">Contact</Link>
+            <Link href="/cart" className="relative text-foreground hover:text-primary transition-colors duration-200">
+              <ShoppingCart className="w-6 h-6" />
+              {itemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
             {user ? (
               <button
                 onClick={() => signOut()}
@@ -45,27 +58,37 @@ export default function Header() {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-foreground hover:text-primary transition-colors duration-200"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              {isMenuOpen ? (
-                <path d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path d="M4 6h16M4 12h16M4 18h16" />
+          <div className="md:hidden flex items-center space-x-4">
+            <Link href="/cart" className="relative text-foreground hover:text-primary transition-colors duration-200">
+              <ShoppingCart className="w-6 h-6" />
+              {itemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
               )}
-            </svg>
-          </button>
+            </Link>
+            <button
+              className="p-2 text-foreground hover:text-primary transition-colors duration-200"
+              onClick={toggleMenu}
+              aria-label="Toggle menu"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isMenuOpen ? (
+                  <path d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}

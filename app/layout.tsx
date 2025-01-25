@@ -5,6 +5,7 @@ import { ThemeProvider } from "./components/theme/ThemeProvider";
 import ThemeToggle from "./components/theme/ThemeToggle";
 import Header from "./components/layout/Header";
 import { AuthProvider } from "@/lib/auth-context";
+import { CartProvider } from "@/lib/cart-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Selvas Coffee - Premium European Coffee Trading",
-  description: "Discover exceptional coffee beans sourced from the world's finest growing regions, traded across Europe with quality and sustainability in mind.",
-} satisfies Metadata;
+  title: 'Coffee Traders',
+  description: 'Premium European Coffee Trading Platform',
+};
 
 export default function RootLayout({
   children,
@@ -33,9 +34,11 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ThemeProvider>
-            <Header />
-            {children}
-            <ThemeToggle />
+            <CartProvider>
+              <Header />
+              {children}
+              <ThemeToggle />
+            </CartProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

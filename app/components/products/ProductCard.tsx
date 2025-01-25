@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCart } from '@/lib/cart-context';
 
 interface ProductCardProps {
   id: string;
@@ -22,8 +23,21 @@ export default function ProductCard({
   origin_country,
   origin_flag_url,
 }: ProductCardProps) {
+  const { addItem } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addItem({
+      id,
+      name,
+      price: price_eur,
+      quantity: 1,
+      image_url
+    });
+  };
+
   return (
-    <Link href={`/products/${id}`} className="group">
+    <div className="group">
       <div className="bg-card text-card-foreground rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:scale-105 hover:shadow-xl border border-border/50">
         <div className="relative h-48 w-full bg-muted">
           {image_url ? (
@@ -68,7 +82,13 @@ export default function ProductCard({
             <span className="text-sm text-muted-foreground">{origin_country}</span>
           </div>
         </div>
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-primary text-primary-foreground px-4 py-2 mt-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
+        >
+          Add to Cart
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }
