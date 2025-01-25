@@ -25,6 +25,11 @@ export default function CheckoutSuccessPage() {
     setIsLoading(false);
   }, [searchParams, clearCart]);
 
+  const handleContinueShopping = () => {
+    // Force a hard navigation to the products page
+    window.location.href = '/products';
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -58,12 +63,12 @@ export default function CheckoutSuccessPage() {
         Your payment was successful and your order has been confirmed. You will receive an email with your order details shortly.
       </p>
       <div className="flex gap-4">
-        <Link
-          href="/products"
+        <button
+          onClick={handleContinueShopping}
           className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
         >
           Continue Shopping
-        </Link>
+        </button>
       </div>
     </div>
   );

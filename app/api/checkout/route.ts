@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     if (!items || items.length === 0) {
       return NextResponse.json(
-        { error: 'Please provide a valid cart items' },
+        { error: 'Please provide valid cart items' },
         { status: 400 }
       );
     }

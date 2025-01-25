@@ -1,6 +1,7 @@
 'use client';
 
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
 import Image from 'next/image';
 import Link from 'next/link';
 import { loadStripe } from '@stripe/stripe-js';
@@ -9,8 +10,15 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart();
+  const { user } = useAuth();
 
   const handleCheckout = async () => {
+    if (!user) {
+      // Redirect to auth page with return URL
+      window.location.href = `/auth?redirect=${encodeURIComponent('/cart')}`;
+      return;
+    }
+
     try {
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Stripe failed to initialize.');
@@ -129,8 +137,13 @@ export default function CartPage() {
               className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
               onClick={handleCheckout}
             >
-              Proceed to Checkout
+              {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
             </button>
+            {!user && (
+              <p className="text-sm text-muted-foreground mt-2 text-center">
+                Please sign in to complete your purchase
+              </p>
+            )}
           </div>
         </div>
       </div>
