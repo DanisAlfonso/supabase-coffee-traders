@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { Eye, EyeOff, Coffee } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
+  const router = useRouter();
   const { signIn, signUp } = useAuth();
   const [isSignIn, setIsSignIn] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,11 +25,13 @@ export default function AuthPage() {
     try {
       if (isSignIn) {
         await signIn(email, password);
+        router.push('/');
       } else {
         if (password !== confirmPassword) {
           throw new Error('Passwords do not match');
         }
         await signUp(email, password);
+        setError('Please check your email to verify your account');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
