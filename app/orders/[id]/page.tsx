@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { Order } from '@/types/order';
 import { format } from 'date-fns';
-import { Package, Truck, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react';
+import { Package, Truck, CheckCircle, XCircle, Clock, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import DownloadInvoiceButton from '@/app/components/orders/DownloadInvoiceButton';
 
@@ -30,42 +30,75 @@ export default function OrderDetailsPage() {
   const { id } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    async function fetchOrder() {
-      if (!user || !id) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data: orderData, error: orderError } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            items:order_items(
-              *,
-              product:products(*)
-            )
-          `)
-          .eq('id', id)
-          .eq('user_id', user.id)
-          .single();
-
-        if (orderError) {
-          console.error('Error fetching order:', orderError);
-          throw orderError;
-        }
-
-        setOrder(orderData);
-      } catch (error) {
-        console.error('Error fetching order:', error);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchOrder() {
+    if (!user || !id) {
+      setLoading(false);
+      return;
     }
 
+    try {
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          items:order_items(
+            *,
+            product:products(*)
+          )
+        `)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (orderError) {
+        console.error('Error fetching order:', orderError);
+        throw orderError;
+      }
+
+      setOrder(orderData);
+    } catch (error) {
+      console.error('Error fetching order:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const updateOrderStatus = async (newStatus: string) => {
+    if (!order || updating) return;
+
+    try {
+      setUpdating(true);
+      setError(null);
+
+      const response = await fetch(`/api/orders/${order.id}/status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update order status');
+      }
+
+      // Refresh order data
+      await fetchOrder();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update order status');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  useEffect(() => {
     fetchOrder();
   }, [user, id]);
 
@@ -132,12 +165,38 @@ export default function OrderDetailsPage() {
           </div>
           <div className="flex items-center gap-4">
             <DownloadInvoiceButton order={order} />
+            {(order.status === 'pending' || order.status === 'processing') && (
+              <button
+                onClick={() => updateOrderStatus('cancelled')}
+                disabled={updating}
+                className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 rounded-md hover:bg-red-200 transition-colors disabled:opacity-50"
+              >
+                {updating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-800 border-t-transparent"></div>
+                    Cancelling...
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4" />
+                    Cancel Order
+                  </>
+                )}
+              </button>
+            )}
             <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${statusColors[order.status]}`}>
               <StatusIcon className="w-5 h-5" />
               <span className="font-medium capitalize">{order.status}</span>
             </div>
           </div>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-md flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p>{error}</p>
+          </div>
+        )}
 
         {/* Order Timeline */}
         <div className="mb-8">
