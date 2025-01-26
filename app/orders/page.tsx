@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/auth-context';
 import { Order } from '@/types/order';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
-import { Package, Truck, CheckCircle, XCircle, Clock, Search, SortAsc, SortDesc } from 'lucide-react';
+import { Package, Truck, CheckCircle, XCircle, Clock, Search, SortAsc, SortDesc, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 const statusIcons = {
   pending: Clock,
@@ -258,16 +259,17 @@ export default function OrdersPage() {
                 ))}
               </div>
 
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Total</span>
-                  <span className="font-bold">
-                    €{order.total_amount.toFixed(2)}
-                  </span>
+              <div className="mt-4 flex justify-between items-center border-t pt-4">
+                <div className="font-medium">
+                  Total: €{order.total_amount.toFixed(2)}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Shipping: €{order.shipping_fee.toFixed(2)}
-                </p>
+                <Link
+                  href={`/orders/${order.id}`}
+                  className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-md hover:bg-primary/20 transition-colors"
+                >
+                  View Details
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
 
               <div className="mt-4 pt-4 border-t">
