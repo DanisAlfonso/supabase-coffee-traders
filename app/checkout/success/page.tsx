@@ -1,74 +1,42 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useCart } from '../../../lib/cart-context';
-import Link from 'next/link';
-import { CheckCircle } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCart } from '@/lib/cart-context';
 
 export default function CheckoutSuccessPage() {
-  const searchParams = useSearchParams();
   const { clearCart } = useCart();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const cleared = useRef(false);
 
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    if (!sessionId) {
-      setError('No session ID found');
-      setIsLoading(false);
-      return;
+    if (!cleared.current) {
+      cleared.current = true;
+      clearCart();
+      console.log('Cart cleared on success page');
     }
+    
+    const timer = setTimeout(() => {
+      router.push('/products');
+    }, 3000);
 
-    // Clear the cart after successful payment
-    clearCart();
-    setIsLoading(false);
-  }, [searchParams, clearCart]);
-
-  const handleContinueShopping = () => {
-    // Force a hard navigation to the products page
-    window.location.href = '/products';
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold text-red-500 mb-4">Error</h1>
-        <p className="text-muted-foreground mb-6">{error}</p>
-        <Link
-          href="/"
-          className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-        >
-          Return to Home
-        </Link>
-      </div>
-    );
-  }
+    return () => clearTimeout(timer);
+  }, [clearCart, router]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
-      <div className="text-green-500 mb-6">
-        <CheckCircle size={64} />
-      </div>
-      <h1 className="text-3xl font-bold mb-4">Thank You for Your Order!</h1>
-      <p className="text-muted-foreground text-center max-w-md mb-8">
-        Your payment was successful and your order has been confirmed. You will receive an email with your order details shortly.
-      </p>
-      <div className="flex gap-4">
-        <button
-          onClick={handleContinueShopping}
-          className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-        >
-          Continue Shopping
-        </button>
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Thank you for your order!
+          </h1>
+          <p className="mt-3 text-xl text-gray-500">
+            Your payment was successful and your order is being processed.
+          </p>
+          <p className="mt-2 text-gray-500">
+            You will be redirected to the products page in a few seconds...
+          </p>
+        </div>
       </div>
     </div>
   );

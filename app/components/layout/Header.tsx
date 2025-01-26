@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Package } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,6 +31,15 @@ export default function Header() {
             <Link href="/products" className="text-foreground hover:text-primary transition-colors duration-200">Products</Link>
             <Link href="/about" className="text-foreground hover:text-primary transition-colors duration-200">About</Link>
             <Link href="/contact" className="text-foreground hover:text-primary transition-colors duration-200">Contact</Link>
+            {user && (
+              <Link 
+                href="/orders" 
+                className="text-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2"
+              >
+                <Package className="w-5 h-5" />
+                <span>Orders</span>
+              </Link>
+            )}
             <Link href="/cart" className="relative text-foreground hover:text-primary transition-colors duration-200">
               <ShoppingCart className="w-6 h-6" />
               {itemCount > 0 && (
@@ -98,17 +106,26 @@ export default function Header() {
             <Link href="/products" className="block text-foreground hover:text-primary transition-colors duration-200">Products</Link>
             <Link href="/about" className="block text-foreground hover:text-primary transition-colors duration-200">About</Link>
             <Link href="/contact" className="block text-foreground hover:text-primary transition-colors duration-200">Contact</Link>
+            {user && (
+              <Link 
+                href="/orders" 
+                className="block text-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2"
+              >
+                <Package className="w-5 h-5" />
+                <span>Orders</span>
+              </Link>
+            )}
             {user ? (
               <button
                 onClick={() => signOut()}
-                className="block w-full text-left bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
+                className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
               >
                 Sign Out
               </button>
             ) : (
               <Link
                 href="/auth"
-                className="block bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200"
+                className="block w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors duration-200 text-center"
               >
                 Sign In
               </Link>
