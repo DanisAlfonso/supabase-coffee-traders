@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Order } from '@/types/order';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
-import { Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Package, Truck, CheckCircle, XCircle, Clock, Search, SortAsc, SortDesc } from 'lucide-react';
 
 const statusIcons = {
   pending: Clock,
@@ -23,10 +23,25 @@ const statusColors = {
   cancelled: 'bg-red-100 text-red-800',
 } as const;
 
+const ORDERS_PER_PAGE = 5;
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortField, setSortField] = useState<'created_at' | 'total_amount'>('created_at');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
   const { user } = useAuth();
+
+  // Order summary calculations
+  const totalOrders = orders.length;
+  const totalSpent = orders.reduce((sum, order) => sum + order.total_amount, 0);
+  const statusCounts = orders.reduce((acc, order) => {
+    acc[order.status] = (acc[order.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -56,12 +71,6 @@ export default function OrdersPage() {
           throw ordersError;
         }
         
-        console.log('Orders data:', ordersData);
-        console.log('Number of orders:', ordersData?.length || 0);
-        if (ordersData && ordersData.length > 0) {
-          console.log('First order:', ordersData[0]);
-        }
-        
         setOrders(ordersData || []);
       } catch (error) {
         console.error('Error fetching orders:', error);
@@ -72,6 +81,28 @@ export default function OrdersPage() {
 
     fetchOrders();
   }, [user]);
+
+  // Filter and sort orders
+  const filteredOrders = orders
+    .filter(order => {
+      const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const direction = sortDirection === 'asc' ? 1 : -1;
+      if (sortField === 'created_at') {
+        return direction * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      }
+      return direction * (a[sortField] - b[sortField]);
+    });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * ORDERS_PER_PAGE,
+    currentPage * ORDERS_PER_PAGE
+  );
 
   if (!user) {
     return (
@@ -113,8 +144,73 @@ export default function OrdersPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Your Orders</h1>
 
+      {/* Order Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-card rounded-lg shadow-sm border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Total Orders</h3>
+          <p className="text-2xl font-bold">{totalOrders}</p>
+        </div>
+        <div className="bg-card rounded-lg shadow-sm border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Total Spent</h3>
+          <p className="text-2xl font-bold">€{totalSpent.toFixed(2)}</p>
+        </div>
+        <div className="bg-card rounded-lg shadow-sm border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Active Orders</h3>
+          <p className="text-2xl font-bold">{statusCounts['processing'] || 0}</p>
+        </div>
+        <div className="bg-card rounded-lg shadow-sm border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Delivered Orders</h3>
+          <p className="text-2xl font-bold">{statusCounts['delivered'] || 0}</p>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className="flex-1 min-w-[200px]">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by Order ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 rounded-md border bg-background"
+            />
+          </div>
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-4 py-2 rounded-md border bg-background"
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div className="flex items-center gap-2">
+          <select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value as 'created_at' | 'total_amount')}
+            className="px-4 py-2 rounded-md border bg-background"
+          >
+            <option value="created_at">Sort by Date</option>
+            <option value="total_amount">Sort by Amount</option>
+          </select>
+          <button
+            onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+            className="p-2 rounded-md border bg-background hover:bg-muted"
+          >
+            {sortDirection === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Orders List */}
       <div className="space-y-6">
-        {orders.map((order) => {
+        {paginatedOrders.map((order) => {
           const StatusIcon = statusIcons[order.status];
           return (
             <div
@@ -194,6 +290,41 @@ export default function OrdersPage() {
           );
         })}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center gap-2">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-md border bg-background hover:bg-muted disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                  currentPage === i + 1
+                    ? 'bg-primary text-primary-foreground'
+                    : 'border bg-background hover:bg-muted'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-md border bg-background hover:bg-muted disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 } 
