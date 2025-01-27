@@ -25,7 +25,7 @@ export default function AuthPage() {
     try {
       if (isSignIn) {
         await signIn(email, password);
-        router.push('/');
+        router.push('/admin');
       } else {
         if (password !== confirmPassword) {
           throw new Error('Passwords do not match');
