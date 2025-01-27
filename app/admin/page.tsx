@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   XCircle
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import {
   LineChart,
@@ -28,6 +27,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
+import { getDashboardStats } from '@/app/actions/admin';
 
 interface OrderItem {
   product_id: string;
@@ -114,127 +114,25 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchDashboardStats() {
+    async function fetchStats() {
       try {
-        // Get date ranges
-        const now = new Date();
-        const currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-        const previousPeriodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14);
-
-        // Fetch current period orders
-        const { data: currentOrders, error: currentOrdersError } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            order_items(
-              product_id,
-              quantity,
-              total_price,
-              product:products(
-                name,
-                image_url
-              )
-            )
-          `)
-          .gte('created_at', currentPeriodStart.toISOString())
-          .order('created_at', { ascending: false });
-
-        if (currentOrdersError) throw currentOrdersError;
-
-        // Fetch previous period orders
-        const { data: previousPeriodOrders, error: previousOrdersError } = await supabase
-          .from('orders')
-          .select('*')
-          .gte('created_at', previousPeriodStart.toISOString())
-          .lt('created_at', currentPeriodStart.toISOString());
-
-        if (previousOrdersError) throw previousOrdersError;
-
-        // Calculate current period stats
-        const totalRevenue = currentOrders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
-        const totalOrders = currentOrders?.length || 0;
-        const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
-
-        // Calculate previous period stats
-        const previousRevenue = previousPeriodOrders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
-        const previousOrders = previousPeriodOrders?.length || 0;
-        const previousCustomers = new Set(previousPeriodOrders?.map(order => order.user_id)).size;
-        const previousAverageOrder = previousOrders ? previousRevenue / previousOrders : 0;
-
-        // Get unique customers
-        const uniqueCustomers = new Set(currentOrders?.map(order => order.user_id));
-
-        // Calculate orders by status
-        const ordersByStatus = Object.entries(
-          currentOrders?.reduce((acc: Record<string, number>, order) => {
-            acc[order.status] = (acc[order.status] || 0) + 1;
-            return acc;
-          }, {}) || {}
-        ).map(([name, value]) => ({ name, value }));
-
-        // Calculate daily revenue
-        const dailyRevenue = Array.from({ length: 7 }, (_, i) => {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          const dateStr = date.toISOString().split('T')[0];
-          
-          const revenue = currentOrders?.reduce((sum, order) => {
-            const orderDate = order.created_at.split('T')[0];
-            return orderDate === dateStr ? sum + order.total_amount : sum;
-          }, 0) || 0;
-
-          return {
-            date: dateStr,
-            revenue,
-          };
-        }).reverse();
-
-        // Calculate top products
-        const productStats: Record<string, Product> = {};
-        currentOrders?.forEach((order: Order) => {
-          order.order_items?.forEach((item: OrderItem) => {
-            if (!productStats[item.product_id]) {
-              productStats[item.product_id] = {
-                id: item.product_id,
-                name: item.product.name,
-                image_url: item.product.image_url,
-                total_sold: 0,
-                revenue: 0,
-              };
-            }
-            productStats[item.product_id].total_sold += item.quantity;
-            productStats[item.product_id].revenue += item.total_price;
-          });
-        });
-
-        const topProducts = Object.values(productStats)
-          .sort((a, b) => b.revenue - a.revenue)
-          .slice(0, 5);
-
-        setStats({
-          totalRevenue,
-          totalOrders,
-          totalCustomers: uniqueCustomers.size,
-          averageOrderValue,
-          recentOrders: currentOrders?.slice(0, 5) || [],
-          ordersByStatus,
-          dailyRevenue,
-          topProducts,
-          previousPeriod: {
-            revenue: previousRevenue,
-            orders: previousOrders,
-            customers: previousCustomers,
-            averageOrder: previousAverageOrder,
-          },
-        });
+        setLoading(true);
+        const response = await getDashboardStats();
+        if (response.error) {
+          console.error('Error fetching stats:', response.error);
+          return;
+        }
+        if (response.stats) {
+          setStats(response.stats);
+        }
       } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
+        console.error('Error fetching stats:', error);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchDashboardStats();
+    fetchStats();
   }, []);
 
   const calculateTrend = (current: number, previous: number) => {
@@ -380,17 +278,27 @@ export default function AdminDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={120}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, value, percent }) => {
+                    const percentage = (percent * 100).toFixed(0);
+                    return value > 0 ? `${name} ${percentage}%` : '';
+                  }}
                 >
                   {stats.ordersByStatus.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Legend />
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value: number, name: string) => [`${value} orders`, name]}
+                />
+                <Legend 
+                  layout="horizontal"
+                  verticalAlign="bottom"
+                  align="center"
+                  wrapperStyle={{ paddingTop: '20px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

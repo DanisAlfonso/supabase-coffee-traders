@@ -12,6 +12,28 @@ const supabaseAdmin = createClient(
   }
 );
 
+interface ProductStats {
+  id: string;
+  name: string;
+  image_url: string;
+  total_sold: number;
+  revenue: number;
+}
+
+interface OrderItem {
+  product_id: string;
+  product: {
+    name: string;
+    image_url: string;
+  };
+  quantity: number;
+  total_price: number;
+}
+
+interface Order {
+  order_items?: OrderItem[];
+}
+
 export async function getCustomersWithOrders(sortField: string = 'created_at', sortDirection: 'asc' | 'desc' = 'desc') {
   try {
     const { data: users, error: usersError } = await supabaseAdmin
@@ -138,5 +160,126 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
   } catch (error) {
     console.error('Error updating order status:', error);
     return { error: 'Failed to update order status' };
+  }
+}
+
+export async function getDashboardStats() {
+  try {
+    // Get date ranges
+    const now = new Date();
+    const currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    const previousPeriodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14);
+
+    // Fetch current period orders
+    const { data: currentOrders, error: currentOrdersError } = await supabaseAdmin
+      .from('orders')
+      .select(`
+        *,
+        order_items(
+          product_id,
+          quantity,
+          total_price,
+          product:products(
+            name,
+            image_url
+          )
+        )
+      `)
+      .gte('created_at', currentPeriodStart.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (currentOrdersError) throw currentOrdersError;
+
+    // Fetch previous period orders
+    const { data: previousPeriodOrders, error: previousOrdersError } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .gte('created_at', previousPeriodStart.toISOString())
+      .lt('created_at', currentPeriodStart.toISOString());
+
+    if (previousOrdersError) throw previousOrdersError;
+
+    // Calculate current period stats
+    const totalRevenue = currentOrders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+    const totalOrders = currentOrders?.length || 0;
+    const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
+
+    // Calculate previous period stats
+    const previousRevenue = previousPeriodOrders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+    const previousOrders = previousPeriodOrders?.length || 0;
+    const previousCustomers = new Set(previousPeriodOrders?.map(order => order.user_id)).size;
+    const previousAverageOrder = previousOrders ? previousRevenue / previousOrders : 0;
+
+    // Get unique customers
+    const uniqueCustomers = new Set(currentOrders?.map(order => order.user_id));
+
+    // Calculate orders by status
+    const ordersByStatus = Object.entries(
+      currentOrders?.reduce((acc: Record<string, number>, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {}) || {}
+    ).map(([name, value]) => ({ name, value }));
+
+    // Calculate daily revenue
+    const dailyRevenue = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const revenue = currentOrders?.reduce((sum, order) => {
+        const orderDate = order.created_at.split('T')[0];
+        return orderDate === dateStr ? sum + order.total_amount : sum;
+      }, 0) || 0;
+
+      return {
+        date: dateStr,
+        revenue,
+      };
+    }).reverse();
+
+    // Calculate top products
+    const productStats: Record<string, ProductStats> = {};
+    currentOrders?.forEach((order: Order) => {
+      order.order_items?.forEach((item: OrderItem) => {
+        if (!productStats[item.product_id]) {
+          productStats[item.product_id] = {
+            id: item.product_id,
+            name: item.product.name,
+            image_url: item.product.image_url,
+            total_sold: 0,
+            revenue: 0,
+          };
+        }
+        productStats[item.product_id].total_sold += item.quantity;
+        productStats[item.product_id].revenue += item.total_price;
+      });
+    });
+
+    const topProducts = Object.values(productStats)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    return {
+      stats: {
+        totalRevenue,
+        totalOrders,
+        totalCustomers: uniqueCustomers.size,
+        averageOrderValue,
+        recentOrders: currentOrders?.slice(0, 5) || [],
+        ordersByStatus,
+        dailyRevenue,
+        topProducts,
+        previousPeriod: {
+          revenue: previousRevenue,
+          orders: previousOrders,
+          customers: previousCustomers,
+          averageOrder: previousAverageOrder,
+        },
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    return { error: 'Failed to fetch dashboard stats' };
   }
 } 
