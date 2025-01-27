@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { sendOrderStatusEmail } from '@/lib/email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-12-18.acacia',
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
           shipping_city: shippingAddress.city,
           shipping_postal_code: shippingAddress.postal_code,
           shipping_country: shippingAddress.country,
-          customer_email: session.customer_email || '',
+          customer_email: session.metadata?.customer_email || '',
           customer_name: session.metadata?.shipping_name || '',
           customer_phone: session.metadata?.shipping_phone || null,
         })
@@ -116,13 +117,61 @@ export async function POST(request: Request) {
           console.error(`Failed to update stock for product ${item.product_id}:`, stockError);
         }
       }
+
+      // Send order confirmation email
+      try {
+        console.log('Preparing order data for email:', {
+          orderId: order.id,
+          customerEmail: order.customer_email,
+          itemsCount: orderItems.length
+        });
+
+        const orderWithItems = {
+          ...order,
+          items: orderItems.map(item => ({
+            ...item,
+            product: {
+              name: (lineItems.data.find(li => 
+                li.price?.product && 
+                (li.price.product as Stripe.Product).metadata?.product_id === item.product_id
+              )?.price?.product as Stripe.Product)?.name || 'Unknown Product'
+            }
+          }))
+        };
+
+        console.log('Prepared order data:', {
+          orderId: orderWithItems.id,
+          customerEmail: orderWithItems.customer_email,
+          items: orderWithItems.items.map(item => ({
+            productName: item.product.name,
+            quantity: item.quantity,
+            total: item.total_price
+          }))
+        });
+
+        await sendOrderStatusEmail(orderWithItems, 'pending');
+        console.log('Order confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send order confirmation email:', {
+          error: emailError,
+          errorMessage: emailError instanceof Error ? emailError.message : 'Unknown error',
+          order: {
+            id: order.id,
+            customerEmail: order.customer_email
+          }
+        });
+        // Don't throw here, as the order was still created successfully
+      }
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    console.error('Webhook error:', error);
     return NextResponse.json(
-      { message: 'Error processing webhook' },
+      { 
+        message: 'Webhook handler failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

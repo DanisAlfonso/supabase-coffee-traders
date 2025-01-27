@@ -188,6 +188,7 @@ export async function POST(request: Request) {
         ],
         metadata: {
           user_id: user.id,
+          customer_email: user.email || '',
           shipping_name: shippingInfo.name,
           shipping_phone: shippingInfo.phone,
           shipping_address: JSON.stringify(shippingInfo.address),

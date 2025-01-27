@@ -21,7 +21,7 @@ export async function sendOrderStatusEmail(order: Order, previousStatus: string)
 
     console.log('Sending email to:', order.customer_email);
     const { data, error } = await resend.emails.send({
-      from: 'Selvas Coffee <onboarding@resend.dev>',
+      from: 'orders@danisramirez.com',
       to: [order.customer_email],
       subject: `Order Status Update - ${order.id}`,
       html: html,
