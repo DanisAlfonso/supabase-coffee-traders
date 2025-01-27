@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getOrders, updateOrderStatus } from '@/app/actions/admin';
 import { 
   Search, 
   ArrowUpDown,
@@ -79,8 +79,6 @@ export default function OrdersPage() {
     start: '',
     end: '',
   });
-  const [sortField, setSortField] = useState<keyof Order>('created_at');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -91,36 +89,15 @@ export default function OrdersPage() {
 
   async function fetchOrders() {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          items:order_items(
-            *,
-            product:products(
-              name,
-              image_url
-            )
-          )
-        `)
-        .order(sortField, { ascending: sortDirection === 'asc' });
-
+      const { orders: fetchedOrders, error } = await getOrders();
       if (error) throw error;
-      setOrders(data || []);
+      setOrders(fetchedOrders || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
     }
   }
-
-  const handleSort = (field: keyof Order) => {
-    setSortDirection(current => {
-      if (sortField !== field) return 'asc';
-      return current === 'asc' ? 'desc' : 'asc';
-    });
-    setSortField(field);
-  };
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
@@ -146,12 +123,10 @@ export default function OrdersPage() {
 
   const handleStatusUpdate = async (orderId: string, newStatus: Order['status']) => {
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
-
+      const { error } = await updateOrderStatus(orderId, newStatus);
       if (error) throw error;
+      
+      // Refresh orders list
       fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -282,7 +257,6 @@ export default function OrdersPage() {
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('id')}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Order ID</span>
@@ -291,7 +265,6 @@ export default function OrdersPage() {
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('customer_name')}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Customer</span>
@@ -300,7 +273,6 @@ export default function OrdersPage() {
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('total_amount')}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Amount</span>
@@ -309,7 +281,6 @@ export default function OrdersPage() {
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('status')}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Status</span>
@@ -318,7 +289,6 @@ export default function OrdersPage() {
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('created_at')}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Date</span>
