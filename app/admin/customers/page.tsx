@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getCustomersWithOrders } from '@/app/actions/admin';
 import { 
   Search, 
   ArrowUpDown,
@@ -54,36 +54,17 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [sortField, sortDirection]);
 
   async function fetchCustomers() {
     try {
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select('*')
-        .order(sortField, { ascending: sortDirection === 'asc' });
+      const result = await getCustomersWithOrders(sortField, sortDirection);
+      
+      if ('error' in result) {
+        throw new Error(result.error);
+      }
 
-      if (usersError) throw usersError;
-
-      // Fetch orders for each user
-      const customersWithOrders = await Promise.all(
-        (users || []).map(async (user) => {
-          const { data: orders, error: ordersError } = await supabase
-            .from('orders')
-            .select('id, total_amount, status, created_at')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-
-          if (ordersError) throw ordersError;
-
-          return {
-            ...user,
-            orders: orders || [],
-          };
-        })
-      );
-
-      setCustomers(customersWithOrders);
+      setCustomers(result.customers);
     } catch (error) {
       console.error('Error fetching customers:', error);
     } finally {

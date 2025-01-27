@@ -12,9 +12,9 @@ CREATE POLICY "Users can view their own orders"
   USING (
     auth.uid() = user_id OR
     EXISTS (
-      SELECT 1 FROM user_roles
-      WHERE user_roles.user_id = auth.uid()
-      AND user_roles.role = 'admin'
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.metadata->>'role' = 'admin'
     )
   );
 
@@ -22,13 +22,22 @@ CREATE POLICY "Users can create their own orders"
   ON orders FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Admins can update orders"
+CREATE POLICY "Service role can update orders"
   ON orders FOR UPDATE
   USING (
+    auth.role() = 'service_role' OR
     EXISTS (
-      SELECT 1 FROM user_roles
-      WHERE user_roles.user_id = auth.uid()
-      AND user_roles.role = 'admin'
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.metadata->>'role' = 'admin'
+    )
+  )
+  WITH CHECK (
+    auth.role() = 'service_role' OR
+    EXISTS (
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.metadata->>'role' = 'admin'
     )
   );
 
