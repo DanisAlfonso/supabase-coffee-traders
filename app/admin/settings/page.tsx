@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Store,
@@ -102,33 +102,89 @@ const paymentMethods = [
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('*')
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setSettings({
+            store: data.store,
+            shipping: data.shipping,
+            email: data.email,
+            payment: data.payment,
+          });
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        alert('Error loading settings');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadSettings();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Save settings to Supabase
       const { error } = await supabase
         .from('settings')
-        .upsert({ id: 1, ...settings });
+        .update({
+          store: settings.store,
+          shipping: settings.shipping,
+          email: settings.email,
+          payment: settings.payment,
+        })
+        .eq('id', 1);
 
       if (error) throw error;
 
-      // Show success message
       alert('Settings saved successfully');
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Error saving settings');
+      alert('Error saving settings. Make sure you have admin access.');
     } finally {
       setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-gray-500 dark:text-gray-400">Manage your store settings</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Settings</h1>
+          <p className="text-gray-500 dark:text-gray-400">Manage your store settings</p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Save className="w-5 h-5" />
+          )}
+          <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -428,29 +484,6 @@ export default function SettingsPage() {
             </div>
           </div>
         </motion.div>
-      </div>
-
-      {/* Save Button */}
-      <div className="fixed bottom-6 right-6">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg hover:bg-primary/90 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Saving...</span>
-            </>
-          ) : (
-            <>
-              <Save className="w-5 h-5" />
-              <span>Save Changes</span>
-            </>
-          )}
-        </motion.button>
       </div>
     </div>
   );
