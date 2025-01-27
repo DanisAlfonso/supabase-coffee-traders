@@ -4,11 +4,8 @@ import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
 import Image from 'next/image';
 import Link from 'next/link';
-import { loadStripe } from '@stripe/stripe-js';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart();
@@ -30,67 +27,7 @@ export default function CartPage() {
       return;
     }
 
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        console.error('Stripe failed to initialize - missing publishable key');
-        alert('Payment system is not properly configured. Please contact support.');
-        return;
-      }
-
-      // Default shipping details from user's email
-      const shippingDetails = {
-        email: user.email || '',
-        name: user.user_metadata?.full_name || '',
-        phone: user.phone || '',
-        address: '',
-        city: '',
-        postalCode: '',
-        country: 'DE', // Default to Germany
-      };
-
-      console.log('Making checkout request with details:', { items, shippingDetails });
-
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Important: include credentials for auth
-        body: JSON.stringify({ 
-          items,
-          shippingDetails,
-        }),
-      });
-
-      console.log('Checkout response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Checkout error response:', errorData);
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-
-      const { sessionId, error } = await response.json();
-      if (error) throw new Error(error);
-
-      console.log('Got session ID:', sessionId);
-
-      const result = await stripe.redirectToCheckout({
-        sessionId,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert('Failed to checkout. Please try again.');
-      }
-    }
+    router.push('/checkout');
   };
 
   if (items.length === 0) {

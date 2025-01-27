@@ -67,6 +67,8 @@ export default function OrdersPage() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
+        console.log('Orders query result:', { ordersData, ordersError });
+
         if (ordersError) {
           console.error('Error fetching orders:', ordersError);
           throw ordersError;

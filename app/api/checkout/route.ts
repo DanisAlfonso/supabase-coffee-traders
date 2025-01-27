@@ -1,141 +1,221 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import Stripe from 'stripe';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
-// Validate Stripe secret key
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecretKey) {
-  throw new Error('Missing STRIPE_SECRET_KEY environment variable');
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2024-12-18.acacia',
+});
 
-const stripe = new Stripe(stripeSecretKey);
+// Get the base URL for the application
+const getBaseUrl = () => {
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // Check for explicit base URL
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, '');
+  }
+  // Fallback for local development
+  return 'http://localhost:3000';
+};
 
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image_url: string;
+// Validate if a string is a valid URL
+const isValidUrl = (urlString: string): boolean => {
+  try {
+    new URL(urlString);
+    return true;
+  } catch (_) {
+    return false;
+  }
 };
 
 export async function POST(request: Request) {
   try {
-    // Validate configuration
-    if (!process.env.STRIPE_SECRET_KEY || !process.env.NEXT_PUBLIC_BASE_URL) {
-      console.error('Missing required environment variables');
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
+    const { items, shippingInfo } = await request.json() as { 
+      items: Array<{
+        id: string;
+        name: string;
+        price: number;
+        quantity: number;
+        image_url?: string;
+      }>;
+      shippingInfo: {
+        name: string;
+        phone: string;
+        address: {
+          line1: string;
+          line2?: string;
+          city: string;
+          postal_code: string;
+          country: string;
+        };
+      };
+    };
 
-    // Initialize Supabase client
+    // Create Supabase server client
+    const cookieStore = await cookies();
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          async get(name) {
-            const cookieStore = await cookies();
-            return cookieStore.get(name)?.value;
+          get(name: string) {
+            const cookie = cookieStore.get(name);
+            return cookie?.value ?? '';
           },
-          async set() {},
-          async remove() {},
+          set(_name: string, _value: string, _options: CookieOptions) {
+            // Implementation not needed for this route
+          },
+          remove(_name: string, _options: CookieOptions) {
+            // Implementation not needed for this route
+          },
         },
       }
     );
 
-    // Get the user directly
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    console.log('Checkout API - User:', user?.email);
-    console.log('Checkout API - User Error:', userError);
-
-    if (!user) {
-      console.log('Checkout API - No user found');
+    // Get user data from Supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
       return NextResponse.json(
-        { error: 'User must be logged in' },
+        { message: 'Unauthorized - Please sign in' },
         { status: 401 }
       );
     }
 
-    // Parse request body
-    let body;
-    try {
-      body = await request.json();
-    } catch (error) {
-      console.error('Failed to parse request body:', error);
-      return NextResponse.json(
-        { error: 'Invalid request data' },
-        { status: 400 }
-      );
-    }
-
-    const { items } = body as { items: CartItem[] };
-
-    if (!items?.length) {
-      return NextResponse.json(
-        { error: 'Please provide valid cart items' },
-        { status: 400 }
-      );
-    }
-
-    // Create Stripe checkout session
-    const stripeSession = await stripe.checkout.sessions.create({
-      customer_email: user.email,
-      currency: 'eur',
-      mode: 'payment',
-      line_items: items.map((item) => ({
-        price_data: {
-          currency: 'eur',
-          product_data: {
-            name: item.name,
-            images: [
-              item.image_url.startsWith('/')
-                ? `${process.env.NEXT_PUBLIC_BASE_URL}${item.image_url}`
-                : item.image_url
-            ],
-          },
-          unit_amount: Math.round(item.price * 100),
+    // Create line items for Stripe with validated image URLs
+    const lineItems = items.map((item) => ({
+      price_data: {
+        currency: 'eur',
+        product_data: {
+          name: item.name,
+          images: item.image_url && isValidUrl(item.image_url) ? [item.image_url] : [],
+          metadata: {
+            product_id: item.id
+          }
         },
-        quantity: item.quantity,
-      })),
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 500, currency: 'eur' },
-            display_name: 'Standard Shipping',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 3 },
-              maximum: { unit: 'business_day', value: 5 },
+        unit_amount: Math.round(item.price * 100), // Convert to cents
+      },
+      quantity: item.quantity,
+    }));
+
+    const baseUrl = getBaseUrl();
+
+    // Construct and validate URLs
+    const successUrl = new URL('/orders/success', baseUrl).toString() + '?session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = new URL('/checkout', baseUrl).toString() + '?canceled=true';
+
+    try {
+      // First, create or update a Stripe customer with shipping details
+      const { data: customers } = await stripe.customers.list({
+        email: user.email,
+        limit: 1,
+      });
+
+      let customerId: string;
+
+      if (customers.length > 0) {
+        // Update existing customer
+        const customer = await stripe.customers.update(customers[0].id, {
+          shipping: {
+            name: shippingInfo.name,
+            phone: shippingInfo.phone,
+            address: {
+              line1: shippingInfo.address.line1,
+              line2: shippingInfo.address.line2 || undefined,
+              city: shippingInfo.address.city,
+              postal_code: shippingInfo.address.postal_code,
+              country: shippingInfo.address.country,
             },
           },
-        },
-      ],
-      shipping_address_collection: {
-        allowed_countries: ['DE', 'AT', 'FR', 'IT', 'ES', 'GB', 'IE', 'BE', 'NL', 'LU'],
-      },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-      metadata: {
-        userId: user.id,
-      },
-    });
+        });
+        customerId = customer.id;
+      } else {
+        // Create new customer
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: shippingInfo.name,
+          shipping: {
+            name: shippingInfo.name,
+            phone: shippingInfo.phone,
+            address: {
+              line1: shippingInfo.address.line1,
+              line2: shippingInfo.address.line2 || undefined,
+              city: shippingInfo.address.city,
+              postal_code: shippingInfo.address.postal_code,
+              country: shippingInfo.address.country,
+            },
+          },
+        });
+        customerId = customer.id;
+      }
 
-    return NextResponse.json({ sessionId: stripeSession.id });
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    
-    if (error instanceof Stripe.errors.StripeError) {
+      // Create Stripe checkout session
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        mode: 'payment',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        billing_address_collection: 'required',
+        shipping_address_collection: {
+          allowed_countries: ['ES', 'DE', 'FR', 'IT', 'GB', 'IE', 'BE', 'NL', 'AT', 'PL'],
+        },
+        shipping_options: [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: {
+                amount: 500,
+                currency: 'eur',
+              },
+              display_name: 'Standard shipping',
+              delivery_estimate: {
+                minimum: {
+                  unit: 'business_day',
+                  value: 3,
+                },
+                maximum: {
+                  unit: 'business_day',
+                  value: 5,
+                },
+              },
+            },
+          },
+        ],
+        metadata: {
+          user_id: user.id,
+          shipping_name: shippingInfo.name,
+          shipping_phone: shippingInfo.phone,
+          shipping_address: JSON.stringify(shippingInfo.address),
+        },
+      });
+
+      return NextResponse.json({ sessionId: session.id });
+    } catch (stripeError) {
+      console.error('Stripe session creation error:', stripeError);
       return NextResponse.json(
-        { error: error.message },
-        { status: error.statusCode || 500 }
+        { 
+          message: 'Failed to create checkout session',
+          error: stripeError instanceof Error ? stripeError.message : 'Unknown error',
+          urls: {
+            success: successUrl,
+            cancel: cancelUrl
+          }
+        },
+        { status: 500 }
       );
     }
-
+  } catch (error) {
+    console.error('Checkout error:', error);
     return NextResponse.json(
-      { error: 'An unexpected error occurred during checkout' },
+      { 
+        message: 'Failed to process checkout request',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
