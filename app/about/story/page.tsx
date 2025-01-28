@@ -83,10 +83,13 @@ export default function StoryPage() {
             <div className="flex flex-col justify-center">
               <h2 className="text-3xl font-bold tracking-tight">Our Journey</h2>
               <p className="mt-6 text-lg leading-8">
-                Our journey began with extensive travel through the world&apos;s premier coffee-growing regions. We spent countless hours with farmers, learning their techniques, understanding their challenges, and sharing their aspirations. This firsthand experience shaped our approach to coffee trading.
+                We&apos;ve walked alongside small coffee farmers in Honduras, witnessing their relentless labor and the systemic injustices they face. Their harvests, grown with care under harsh conditions, often yield prices that trap them in cycles of poverty, leaving them vulnerable to exploitative practices and volatile markets.
               </p>
               <p className="mt-6 text-lg leading-8">
-                Today, we&apos;re proud to be a leading force in the specialty coffee trade, known for our commitment to excellence, fair practices, and environmental stewardship. We work directly with farmers in key regions including Colombia, Ethiopia, Guatemala, and Costa Rica.
+                At Selvas Coffee, we&apos;re committed to forging a different path. By partnering directly with growers, we ensure fair pay that honors their expertise and sustains their livelihoods. Transparency and sustainability guide every step—from bean selection to your morning brew.
+              </p>
+              <p className="mt-6 text-lg leading-8">
+                Each purchase supports a supply chain where dignity and quality thrive. This isn&apos;t just coffee; it&apos;s a collective effort to reshape an industry. Join us in fostering a future where fairness and flavor grow hand in hand.
               </p>
             </div>
             <div className="flex flex-col space-y-6 lg:space-y-8">
