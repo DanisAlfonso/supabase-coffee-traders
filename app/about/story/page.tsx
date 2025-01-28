@@ -77,6 +77,24 @@ export default function StoryPage() {
           </div>
         </div>
 
+        {/* Connection Section */}
+        <div className="mx-auto mt-16 max-w-7xl px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gray-50 dark:bg-gray-800 px-6 py-20 shadow-xl lg:px-8">
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-transparent to-transparent opacity-20" />
+            </div>
+            <div className="relative mx-auto max-w-2xl lg:mx-0">
+              <h2 className="text-3xl font-bold tracking-tight mb-6">Our Connection</h2>
+              <p className="mt-6 text-lg leading-8">
+                To know the story behind a coffee bean—its origin, the hands that nurtured it—is to transform each sip into a ritual. At Selvas Coffee, we weave this narrative into every harvest. When you choose our beans, you&apos;re not just savoring exceptional quality; you&apos;re stepping into a direct relationship with the farmers who grew them. Their dedication, rooted in Honduras&apos; fertile soils, meets your appreciation, creating a circle of respect and purpose.
+              </p>
+              <p className="mt-6 text-lg leading-8">
+                Each cup becomes more than a moment of delight—it&apos;s a celebration of craftsmanship, equity, and the shared journey from farm to table.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Journey Section */}
         <div className="mx-auto mt-16 max-w-7xl px-6 lg:px-8">
           <div className="mx-auto grid max-w-2xl grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-2">
