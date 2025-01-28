@@ -54,7 +54,7 @@ export default function AboutPage() {
 
   const team = [
     {
-      name: 'Sarah Johnson',
+      name: 'Danis Alfonso',
       role: 'Master Roaster',
       image: '/team/roaster.jpg',
       description: 'With 15 years of experience in coffee roasting, Sarah ensures every batch meets our high standards.',
@@ -137,7 +137,7 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold mb-6 dark:text-white">Our Story</h2>
               <div className="space-y-4 text-gray-600 dark:text-gray-300">
                 <p>
-                  Founded in 2020, Selvas Coffee emerged from a simple yet powerful idea:
+                  Founded in 2025, Selvas Coffee emerged from a simple yet powerful idea:
                   to bridge the gap between exceptional coffee producers and discerning coffee lovers.
                 </p>
                 <p>
