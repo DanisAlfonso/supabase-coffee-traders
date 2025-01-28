@@ -60,10 +60,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-black/30 z-10" />
         <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-white/90 to-white/80">
-            Premium European Coffee Trading
+            Bridging Worlds: Premium Coffee Rooted in Ethics and Excellence
           </h1>
           <p className="text-xl md:text-2xl max-w-2xl text-white/90">
-            Discover exceptional coffee beans sourced from the world&apos;s finest growing regions.
+            Savor Coffee with Purpose—Directly Sourced from Dedicated Farmers and Pristine Lands
           </p>
         </div>
       </section>
@@ -73,19 +73,21 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         <div className="container mx-auto px-4 relative">
           <h2 className="text-3xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/80">
-            Our European Coffee Sourcing
+            Flavor with a Future
           </h2>
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-lg text-muted-foreground mb-6">
-              We partner directly with premium coffee estates across the globe,
-              bringing the finest beans to European coffee enthusiasts. Our rigorous
-              selection process and direct trade relationships ensure exceptional
-              quality in every batch.
+              Selvas Coffee unites Honduran highlands with your table through direct farmer partnerships. 
+              Every bean embodies fair pay, environmental stewardship, and artisanal craft.
+            </p>
+            <p className="text-lg text-muted-foreground mb-6">
+              Savor coffee that transcends taste—each cup honors the hands that nurtured it and the 
+              ecosystems that sustain it. By choosing us, you fuel a cycle of dignity, quality, and 
+              shared purpose.
             </p>
             <p className="text-lg text-muted-foreground">
-              Each coffee origin is carefully chosen for its unique characteristics,
-              sustainable farming practices, and contribution to local communities.
-              Experience the art of coffee cultivation through our curated selection.
+              Together, we&apos;re rewriting coffee&apos;s story: one grounded in equity, flavor, and 
+              lasting connection.
             </p>
           </div>
         </div>

@@ -75,7 +75,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Discover our carefully selected premium coffee beans, sourced from the world&apos;s finest growing regions
+          Experience the richness of Honduran highlands—where exceptional coffee meets ethical sourcing and artisanal craftsmanship
         </motion.p>
 
         <div 
