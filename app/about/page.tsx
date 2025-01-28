@@ -252,28 +252,41 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary overflow-hidden">
+      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-primary/90 before:absolute before:inset-0 before:bg-[url('/noise.png')] before:opacity-[0.15] before:mix-blend-overlay">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
         <motion.div 
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+          className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold text-white mb-8">
+          <h2 className="text-4xl font-bold text-white mb-8 [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.1)]">
             Join Us in Our Coffee Journey
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.1)]">
             Experience the difference of truly exceptional coffee while supporting
             sustainable practices and communities worldwide.
           </p>
           <motion.a
             href="/products"
-            className="inline-block bg-white text-primary font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/5 gap-2 group"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             Explore Our Products
+            <motion.span
+              initial={{ x: 0 }}
+              animate={{ x: 3 }}
+              transition={{
+                duration: 0.6,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+            >
+              →
+            </motion.span>
           </motion.a>
         </motion.div>
       </section>
