@@ -129,15 +129,18 @@ export default function StoryPage() {
           </div>
         </div>
 
-        {/* Future Vision */}
+        {/* Our Commitment */}
         <div className="mx-auto mt-16 max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:mx-0">
-            <h2 className="text-3xl font-bold tracking-tight">Looking Forward</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Our Commitment</h2>
             <p className="mt-6 text-lg leading-8">
-              As we look to the future, our commitment to quality and sustainability only grows stronger. We&apos;re investing in innovative farming techniques, expanding our network of partner farms, and developing new ways to bring exceptional coffee experiences to our customers.
+              At Selvas Coffee, we pledge to deliver exceptional quality at competitive prices while upholding fair partnerships with producers. Looking ahead, we aim to invest in sustainable agricultural practices, grow our network of partner farmers, and innovate ways to bring you coffee that transcends expectations.
             </p>
             <p className="mt-6 text-lg leading-8">
-              We invite you to join us on this journey, whether you&apos;re a coffee enthusiast, a potential partner, or simply someone who believes in the power of doing business the right way.
+              Whether you&apos;re a coffee enthusiast savoring each cup, a potential collaborator, or someone who shares our vision for ethical trade, we invite you to join our journey. Together, we can redefine what coffee means—transforming it from a daily ritual into a force for equity, sustainability, and shared purpose.
+            </p>
+            <p className="mt-6 text-lg leading-8">
+              Your choice fuels more than a morning brew; it nurtures a future where quality and conscience thrive. Let&apos;s brew progress, one bean at a time.
             </p>
           </div>
         </div>
