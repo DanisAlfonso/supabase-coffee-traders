@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="steam" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:currentColor;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:currentColor;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:currentColor;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main Container for Centering - Reduced padding, larger scale -->
+  <g transform="translate(32, 32) scale(0.875)">
+    <!-- Coffee Cup - More prominent shape -->
+    <path fill="currentColor" d="
+      M 120 120
+      C 120 120, 120 100, 200 100
+      C 280 100, 360 100, 440 100
+      C 480 100, 480 120, 480 120
+      L 460 440
+      C 460 480, 420 500, 380 500
+      L 220 500
+      C 180 500, 140 480, 140 440
+      Z"
+    />
+    
+    <!-- Handle - Bolder curve -->
+    <path fill="currentColor" d="
+      M 480 160
+      C 520 160, 540 200, 540 240
+      C 540 280, 520 320, 480 320
+      L 480 280
+      C 500 280, 500 240, 500 240
+      C 500 240, 500 200, 480 200
+      Z"
+    />
+
+    <!-- Coffee Surface - Subtle gradient -->
+    <path fill="currentColor" opacity="0.2" d="
+      M 140 160
+      L 460 160
+      L 440 440
+      C 440 460, 420 480, 400 480
+      L 200 480
+      C 180 480, 160 460, 160 440
+      Z"
+    />
+
+    <!-- Steam - Elegant curves -->
+    <g fill="url(#steam)">
+      <path d="
+        M 220 80
+        C 220 60, 240 40, 260 40
+        C 280 40, 300 60, 300 80
+        C 300 100, 280 120, 260 120
+        C 240 120, 220 100, 220 80
+        Z">
+        <animate attributeName="d" dur="3s" repeatCount="indefinite" values="
+          M 220 80 C 220 60, 240 40, 260 40 C 280 40, 300 60, 300 80 C 300 100, 280 120, 260 120 C 240 120, 220 100, 220 80 Z;
+          M 220 60 C 220 40, 240 20, 260 20 C 280 20, 300 40, 300 60 C 300 80, 280 100, 260 100 C 240 100, 220 80, 220 60 Z;
+          M 220 80 C 220 60, 240 40, 260 40 C 280 40, 300 60, 300 80 C 300 100, 280 120, 260 120 C 240 120, 220 100, 220 80 Z"
+        />
+      </path>
+      <path d="
+        M 300 60
+        C 300 40, 320 20, 340 20
+        C 360 20, 380 40, 380 60
+        C 380 80, 360 100, 340 100
+        C 320 100, 300 80, 300 60
+        Z">
+        <animate attributeName="d" dur="3s" repeatCount="indefinite" begin="0.5s" values="
+          M 300 60 C 300 40, 320 20, 340 20 C 360 20, 380 40, 380 60 C 380 80, 360 100, 340 100 C 320 100, 300 80, 300 60 Z;
+          M 300 40 C 300 20, 320 0, 340 0 C 360 0, 380 20, 380 40 C 380 60, 360 80, 340 80 C 320 80, 300 60, 300 40 Z;
+          M 300 60 C 300 40, 320 20, 340 20 C 360 20, 380 40, 380 60 C 380 80, 360 100, 340 100 C 320 100, 300 80, 300 60 Z"
+        />
+      </path>
+    </g>
+
+    <!-- Highlight - Subtle shine -->
+    <path fill="currentColor" opacity="0.1" d="
+      M 140 160
+      L 160 160
+      C 180 160, 200 180, 200 200
+      L 200 400
+      C 200 420, 220 440, 240 440
+      L 360 440
+      C 380 440, 400 420, 400 400
+      L 420 160
+      L 440 160
+      L 420 440
+      C 420 460, 400 480, 380 480
+      L 200 480
+      C 180 480, 160 460, 160 440
+      Z"
+    />
+  </g>
+</svg> 

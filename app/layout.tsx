@@ -20,6 +20,31 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: 'Coffee Traders',
   description: 'Premium European Coffee Trading Platform',
+  icons: {
+    icon: [
+      {
+        media: '(prefers-color-scheme: light)',
+        url: '/favicon.ico',
+        href: '/favicon.ico',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
+        url: '/favicon-dark.ico',
+        href: '/favicon-dark.ico',
+      }
+    ],
+    apple: [
+      { url: '/apple-icon.png' },
+      { url: '/apple-icon-dark.png', media: '(prefers-color-scheme: dark)' }
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+      },
+    ],
+  },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({
