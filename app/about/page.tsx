@@ -24,32 +24,32 @@ export default function AboutPage() {
     {
       icon: Coffee,
       title: 'Quality First',
-      description: 'We source only the finest coffee beans from sustainable farms worldwide.',
+      description: 'We select only the finest beans, handpicked from farms committed to sustainable practices and exceptional craftsmanship.',
     },
     {
       icon: Heart,
-      title: 'Passion for Coffee',
-      description: 'Our love for coffee drives us to deliver exceptional products and experiences.',
+      title: 'Passion in Every Step',
+      description: 'From harvest to roast, we pour dedication into creating coffee that tells a story—yours and ours.',
     },
     {
       icon: Shield,
-      title: 'Trust & Transparency',
-      description: 'We believe in building lasting relationships through honest business practices.',
+      title: 'Trust Through Transparency',
+      description: 'We build partnerships, not transactions—sharing pricing, practices, and progress with farmers and customers alike.',
     },
     {
       icon: Globe,
-      title: 'Global Responsibility',
-      description: 'Supporting coffee communities and promoting environmental sustainability.',
+      title: 'Rooted in Responsibility',
+      description: 'Ethical trade and environmental stewardship are not ideals; they&apos;re the foundation of every decision we make.',
     },
     {
       icon: Users,
-      title: 'Community Focus',
-      description: 'Creating connections between coffee farmers, roasters, and enthusiasts.',
+      title: 'Bridging Communities',
+      description: 'We connect Honduran farmers with global coffee lovers, fostering mutual growth and shared appreciation.',
     },
     {
       icon: Truck,
-      title: 'Reliable Service',
-      description: 'Ensuring timely delivery and exceptional customer support at every step.',
+      title: 'Commitment to Excellence',
+      description: 'Timely delivery, meticulous quality control, and unwavering support—because your experience matters as much as our mission.',
     },
   ];
 

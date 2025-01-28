@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, XCircle } from 'lucide-react';
+import { Mail, Phone, Send, CheckCircle2, XCircle } from 'lucide-react';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -72,18 +72,6 @@ export default function ContactPage() {
       title: 'Email',
       details: ['info@selvascoffee.com', 'support@selvascoffee.com'],
       description: 'We aim to respond within 24 hours'
-    },
-    {
-      icon: MapPin,
-      title: 'Visit Us',
-      details: ['123 Coffee Street', 'Copenhagen, 2100'],
-      description: 'Come taste our coffee in person'
-    },
-    {
-      icon: Clock,
-      title: 'Business Hours',
-      details: ['Mon-Fri: 9:00 - 18:00', 'Sat-Sun: 10:00 - 16:00'],
-      description: 'Open on most holidays'
     }
   ];
 
@@ -122,7 +110,7 @@ export default function ContactPage() {
                 }
               }
             }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto"
           >
             {contactInfo.map((info, index) => {
               const Icon = info.icon;
@@ -130,16 +118,18 @@ export default function ContactPage() {
                 <motion.div
                   key={index}
                   variants={fadeInUp}
-                  className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-center"
                 >
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-xl mb-4">
-                    <Icon className="w-6 h-6 text-primary" />
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
+                    <Icon className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 dark:text-white">{info.title}</h3>
-                  {info.details.map((detail, idx) => (
-                    <p key={idx} className="text-gray-600 dark:text-gray-300">{detail}</p>
-                  ))}
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{info.description}</p>
+                  <h3 className="text-2xl font-semibold mb-4 dark:text-white">{info.title}</h3>
+                  <div className="space-y-2">
+                    {info.details.map((detail, idx) => (
+                      <p key={idx} className="text-lg text-gray-600 dark:text-gray-300">{detail}</p>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">{info.description}</p>
                 </motion.div>
               );
             })}
