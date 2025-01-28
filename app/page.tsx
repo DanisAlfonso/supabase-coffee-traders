@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import ProductCard from './components/products/ProductCard';
+import FeaturedProducts from './components/FeaturedProducts';
 
 // Dummy product data
 const dummyProducts = [
@@ -7,55 +6,49 @@ const dummyProducts = [
     id: '1',
     name: 'Colombian Supremo',
     description: 'A rich and full-bodied coffee with caramel sweetness and a smooth finish.',
-    price_eur: 14.99,
+    price: 14.99,
     image_url: '/products/colombian-supremo.jpg',
-    origin_country: 'Colombia',
-    origin_flag_url: '/flags/co.svg'
+    origin: 'Colombia'
   },
   {
     id: '2',
     name: 'Ethiopian Yirgacheffe',
     description: 'Delicate floral and citrus notes with a wine-like acidity.',
-    price_eur: 16.99,
+    price: 16.99,
     image_url: '/products/ethiopian.jpg',
-    origin_country: 'Ethiopia',
-    origin_flag_url: '/flags/et.svg'
+    origin: 'Ethiopia'
   },
   {
     id: '3',
     name: 'Guatemala Antigua',
     description: 'Complex spiciness with a subtle chocolate undertone.',
-    price_eur: 15.99,
+    price: 15.99,
     image_url: '/products/guatemala-antigua.jpg',
-    origin_country: 'Guatemala',
-    origin_flag_url: '/flags/gt.svg'
+    origin: 'Guatemala'
   },
   {
     id: '4',
     name: 'Costa Rica Tarrazu',
     description: 'Bright acidity with hints of citrus and dark chocolate.',
-    price_eur: 15.49,
+    price: 15.49,
     image_url: '/products/costa-rica-tarrazu.jpg',
-    origin_country: 'Costa Rica',
-    origin_flag_url: '/flags/cr.svg'
+    origin: 'Costa Rica'
   },
   {
     id: '5',
     name: 'Kenya AA',
     description: 'Bold, full-bodied with wine-like acidity and berry notes.',
-    price_eur: 17.99,
+    price: 17.99,
     image_url: '/products/kenya-aa.jpg',
-    origin_country: 'Kenya',
-    origin_flag_url: '/flags/ke.svg'
+    origin: 'Kenya'
   },
   {
     id: '6',
     name: 'Brazil Santos',
     description: 'Smooth, mild and sweet with notes of nuts and chocolate.',
-    price_eur: 13.99,
+    price: 13.99,
     image_url: '/products/brasil-santos.jpeg',
-    origin_country: 'Brazil',
-    origin_flag_url: '/flags/br.svg'
+    origin: 'Brazil'
   }
 ];
 
@@ -70,7 +63,7 @@ export default function Home() {
             Premium European Coffee Trading
           </h1>
           <p className="text-xl md:text-2xl max-w-2xl">
-            Discover exceptional coffee beans sourced from the world's finest growing regions.
+            Discover exceptional coffee beans sourced from the world&apos;s finest growing regions.
           </p>
         </div>
       </section>
@@ -97,19 +90,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Products Grid */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">
-            Featured Coffees
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {dummyProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Featured Products */}
+      <FeaturedProducts products={dummyProducts} />
     </main>
   );
 }

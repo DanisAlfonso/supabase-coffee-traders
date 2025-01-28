@@ -2,49 +2,240 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #1f2937;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #f3f4f6;
-  --accent-foreground: #1f2937;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #2563eb;
+  /* Base colors */
+  --background: 255 255 255;
+  --foreground: 23 23 23;
+  
+  /* Primary colors */
+  --primary: 37 99 235;
+  --primary-foreground: 255 255 255;
+  --primary-hover: 29 78 216;
+  --primary-active: 30 64 175;
+  
+  /* Secondary colors */
+  --secondary: 243 244 246;
+  --secondary-foreground: 31 41 55;
+  --secondary-hover: 229 231 235;
+  --secondary-active: 209 213 219;
+  
+  /* Muted colors */
+  --muted: 243 244 246;
+  --muted-foreground: 107 114 128;
+  --muted-hover: 229 231 235;
+  
+  /* Accent colors */
+  --accent: 243 244 246;
+  --accent-foreground: 31 41 55;
+  --accent-hover: 229 231 235;
+  
+  /* Card colors */
+  --card: 255 255 255;
+  --card-foreground: 23 23 23;
+  --card-hover: 249 250 251;
+  
+  /* Destructive colors */
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --destructive-hover: 220 38 38;
+  
+  /* Success colors */
+  --success: 34 197 94;
+  --success-foreground: 255 255 255;
+  --success-hover: 22 163 74;
+  
+  /* Warning colors */
+  --warning: 245 158 11;
+  --warning-foreground: 255 255 255;
+  --warning-hover: 217 119 6;
+  
+  /* UI elements */
+  --border: 229 231 235;
+  --input: 229 231 235;
+  --ring: 37 99 235;
+  
+  /* Border Radius */
+  --radius-sm: 0.4rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03),
+               0 1px 3px 0 rgb(0 0 0 / 0.02);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05),
+            0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05),
+               0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05),
+               0 4px 6px -4px rgb(0 0 0 / 0.04);
+  
+  /* Animation */
+  --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-colors: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                      border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                      color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                      fill 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                      stroke 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-transform: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-opacity: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #1f2937;
-  --secondary-foreground: #f3f4f6;
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
-  --accent: #1f2937;
-  --accent-foreground: #f3f4f6;
-  --card: #111827;
-  --card-foreground: #ededed;
-  --border: #374151;
-  --input: #374151;
-  --ring: #3b82f6;
+  /* Base colors */
+  --background: 10 10 10;
+  --foreground: 237 237 237;
+  
+  /* Primary colors */
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+  --primary-hover: 37 99 235;
+  --primary-active: 29 78 216;
+  
+  /* Secondary colors */
+  --secondary: 31 41 55;
+  --secondary-foreground: 243 244 246;
+  --secondary-hover: 55 65 81;
+  --secondary-active: 75 85 99;
+  
+  /* Muted colors */
+  --muted: 31 41 55;
+  --muted-foreground: 156 163 175;
+  --muted-hover: 55 65 81;
+  
+  /* Accent colors */
+  --accent: 31 41 55;
+  --accent-foreground: 243 244 246;
+  --accent-hover: 55 65 81;
+  
+  /* Card colors */
+  --card: 17 24 39;
+  --card-foreground: 237 237 237;
+  --card-hover: 31 41 55;
+  
+  /* Destructive colors */
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --destructive-hover: 220 38 38;
+  
+  /* Success colors */
+  --success: 34 197 94;
+  --success-foreground: 255 255 255;
+  --success-hover: 22 163 74;
+  
+  /* Warning colors */
+  --warning: 245 158 11;
+  --warning-foreground: 255 255 255;
+  --warning-hover: 217 119 6;
+  
+  /* UI elements */
+  --border: 55 65 81;
+  --input: 55 65 81;
+  --ring: 59 130 246;
+  
+  /* Shadows - darker for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3),
+               0 1px 3px 0 rgb(0 0 0 / 0.2);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3),
+            0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3),
+               0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3),
+               0 4px 6px -4px rgb(0 0 0 / 0.2);
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+@layer base {
+  body {
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    transition: var(--transition-colors);
+  }
+  
+  /* Improved default focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary/30 ring-offset-2 ring-offset-background;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Better default selection colors */
+  ::selection {
+    @apply bg-primary/10 text-foreground;
+  }
+  
+  /* Improved scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary/50;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
+  }
 }
 
+@layer components {
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:bg-primary-active;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary-active;
+  }
+  
+  /* Card base styles */
+  .card {
+    @apply rounded-lg border border-border/50 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:border-border;
+  }
+}
+
+@layer utilities {
+  .loading {
+    @apply relative overflow-hidden;
+  }
+  
+  .loading::before {
+    @apply absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite];
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    content: '';
+  }
+}
+
+/* Global transition styles */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: var(--transition-colors);
+}
+
+.animate-in {
+  animation: animate-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Improved button focus styles */
+button:focus {
+  @apply outline-none ring-2 ring-primary/30 ring-offset-2 ring-offset-background;
 }
