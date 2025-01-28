@@ -56,32 +56,33 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[60vh] bg-gray-900">
-        <div className="absolute inset-0 bg-black/50 z-10" />
+      <section className="relative h-[60vh] bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 before:absolute before:inset-0 before:bg-[url('/noise.png')] before:opacity-[0.03] before:mix-blend-overlay">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-black/30 z-10" />
         <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center text-white">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-white/90 to-white/80">
             Premium European Coffee Trading
           </h1>
-          <p className="text-xl md:text-2xl max-w-2xl">
+          <p className="text-xl md:text-2xl max-w-2xl text-white/90">
             Discover exceptional coffee beans sourced from the world&apos;s finest growing regions.
           </p>
         </div>
       </section>
 
       {/* European Sourcing Section */}
-      <section className="py-16 bg-white dark:bg-gray-800">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">
+      <section className="py-16 relative overflow-hidden bg-gradient-to-b from-background via-background/95 to-background before:absolute before:inset-0 before:bg-[url('/noise.png')] before:opacity-[0.02] before:mix-blend-overlay">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+        <div className="container mx-auto px-4 relative">
+          <h2 className="text-3xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/80">
             Our European Coffee Sourcing
           </h2>
           <div className="max-w-3xl mx-auto text-center">
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+            <p className="text-lg text-muted-foreground mb-6">
               We partner directly with premium coffee estates across the globe,
               bringing the finest beans to European coffee enthusiasts. Our rigorous
               selection process and direct trade relationships ensure exceptional
               quality in every batch.
             </p>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-lg text-muted-foreground">
               Each coffee origin is carefully chosen for its unique characteristics,
               sustainable farming practices, and contribution to local communities.
               Experience the art of coffee cultivation through our curated selection.
