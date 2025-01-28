@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { Coffee, Globe, Heart, Shield, Truck, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -137,19 +138,27 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold mb-6 dark:text-white">Our Story</h2>
               <div className="space-y-4 text-gray-600 dark:text-gray-300">
                 <p>
-                  Founded in 2025, Selvas Coffee emerged from a simple yet powerful idea:
-                  to bridge the gap between exceptional coffee producers and discerning coffee lovers.
+                  Selvas Coffee bridges the misty highlands of Honduras with coffee lovers across Europe. 
+                  We partner directly with small-scale farmers, sourcing beans of exceptional quality while 
+                  ensuring fair pay and lasting support.
                 </p>
                 <p>
-                  Our journey began with extensive travel through the world&apos;s premier coffee-growing
-                  regions, building direct relationships with farmers who share our passion for quality
-                  and sustainability.
+                  Our mission? To redefine specialty coffee by uniting ethical trade, environmental care, 
+                  and craftsmanship. Each bean carries a story—of hands that nurtured it, landscapes that 
+                  shaped it, and a vision where quality coffee fuels both connection and sustainability.
                 </p>
                 <p>
-                  Today, we&apos;re proud to be a leading force in the specialty coffee trade,
-                  known for our commitment to excellence, fair practices, and environmental
-                  stewardship.
+                  Together, we&apos;re crafting more than coffee: a future rooted in fairness, flavor, 
+                  and mutual respect.
                 </p>
+              </div>
+              <div className="mt-8">
+                <Link
+                  href="/about/story"
+                  className="text-sm font-semibold leading-6 text-blue-500 hover:text-blue-600"
+                >
+                  Read our full story <span aria-hidden="true">→</span>
+                </Link>
               </div>
             </motion.div>
           </motion.div>
