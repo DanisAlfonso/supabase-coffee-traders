@@ -9,6 +9,8 @@ import { format } from 'date-fns';
 import { Package, Truck, CheckCircle, XCircle, Clock, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import DownloadInvoiceButton from '@/app/components/orders/DownloadInvoiceButton';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const statusIcons = {
   pending: Clock,
@@ -142,188 +144,249 @@ export default function OrderDetailsPage() {
   const StatusIcon = statusIcons[order.status];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link
-          href="/orders"
-          className="inline-flex items-center gap-2 text-primary hover:text-primary/90 transition-colors"
+    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background before:absolute before:inset-0 before:bg-[url('/noise.png')] before:opacity-[0.02] before:mix-blend-overlay relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+      <div className="container mx-auto px-4 py-8 relative">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Orders
-        </Link>
-      </div>
+          <Link
+            href="/orders"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/90 transition-colors group"
+          >
+            <motion.span
+              initial={{ x: 0 }}
+              animate={{ x: -3 }}
+              transition={{
+                duration: 0.6,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </motion.span>
+            Back to Orders
+          </Link>
+        </motion.div>
 
-      <div className="bg-card rounded-lg shadow-sm border p-6">
-        {/* Order Header */}
-        <div className="flex flex-wrap justify-between items-start gap-4 mb-8 pb-6 border-b">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">Order Details</h1>
-            <p className="text-sm text-muted-foreground">
-              Placed on {format(new Date(order.created_at), 'MMMM d, yyyy')}
-            </p>
-            <p className="text-sm font-mono">#{order.id}</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <DownloadInvoiceButton order={order} />
-            {(order.status === 'pending' || order.status === 'processing') && (
-              <button
-                onClick={() => updateOrderStatus('cancelled')}
-                disabled={updating}
-                className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 rounded-md hover:bg-red-200 transition-colors disabled:opacity-50"
-              >
-                {updating ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-800 border-t-transparent"></div>
-                    Cancelling...
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-4 h-4" />
-                    Cancel Order
-                  </>
-                )}
-              </button>
-            )}
-            <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${statusColors[order.status]}`}>
-              <StatusIcon className="w-5 h-5" />
-              <span className="font-medium capitalize">{order.status}</span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm p-8 relative overflow-hidden group"
+        >
+          {/* Order Header */}
+          <div className="flex flex-wrap justify-between items-start gap-4 mb-8 pb-6 border-b border-border/50">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
+                Order Details
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Placed on {format(new Date(order.created_at), 'MMMM d, yyyy')}
+              </p>
+              <p className="text-sm font-mono text-foreground/90">#{order.id}</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <DownloadInvoiceButton order={order} />
+              {(order.status === 'pending' || order.status === 'processing') && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => updateOrderStatus('cancelled')}
+                  disabled={updating}
+                  className="inline-flex items-center gap-2 bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-all duration-300 disabled:opacity-50 backdrop-blur-sm"
+                >
+                  {updating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-500 border-t-transparent"></div>
+                      Cancelling...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4" />
+                      Cancel Order
+                    </>
+                  )}
+                </motion.button>
+              )}
+              <div className={`px-4 py-2 rounded-lg flex items-center gap-2 ${statusColors[order.status]} bg-opacity-[0.15] backdrop-blur-sm`}>
+                <StatusIcon className="w-5 h-5" />
+                <span className="font-medium capitalize">{order.status}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-md flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p>{error}</p>
-          </div>
-        )}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-red-500/10 text-red-500 rounded-lg flex items-center gap-2 backdrop-blur-sm"
+            >
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <p>{error}</p>
+            </motion.div>
+          )}
 
-        {/* Order Timeline */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">Order Timeline</h2>
-          <div className="relative">
-            <div className="absolute left-2.5 top-0 h-full w-0.5 bg-border"></div>
-            <div className="space-y-6">
-              {order.status !== 'cancelled' && (
-                <>
+          {/* Order Timeline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <h2 className="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
+              Order Timeline
+            </h2>
+            <div className="relative">
+              <div className="absolute left-2.5 top-0 h-full w-0.5 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent"></div>
+              <div className="space-y-6">
+                {order.status !== 'cancelled' && (
+                  <>
+                    <div className="relative flex gap-4">
+                      <div className={`w-5 h-5 rounded-full ${order.status === 'processing' ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-green-400 to-green-600'} flex-shrink-0 mt-1 shadow-lg`}></div>
+                      <div>
+                        <p className="font-medium text-foreground/90">Order Confirmed</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(order.created_at), 'MMMM d, yyyy h:mm a')}
+                        </p>
+                      </div>
+                    </div>
+                    {(order.status === 'shipped' || order.status === 'delivered') && (
+                      <div className="relative flex gap-4">
+                        <div className={`w-5 h-5 rounded-full ${order.status === 'delivered' ? 'bg-gradient-to-br from-green-400 to-green-600' : 'bg-gradient-to-br from-blue-400 to-blue-600'} flex-shrink-0 mt-1 shadow-lg`}></div>
+                        <div>
+                          <p className="font-medium text-foreground/90">Order Shipped</p>
+                          <p className="text-sm text-muted-foreground">Your order is on its way</p>
+                        </div>
+                      </div>
+                    )}
+                    {order.status === 'delivered' && (
+                      <div className="relative flex gap-4">
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex-shrink-0 mt-1 shadow-lg"></div>
+                        <div>
+                          <p className="font-medium text-foreground/90">Order Delivered</p>
+                          <p className="text-sm text-muted-foreground">Package has been delivered</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+                {order.status === 'cancelled' && (
                   <div className="relative flex gap-4">
-                    <div className={`w-5 h-5 rounded-full ${order.status === 'processing' ? 'bg-blue-500' : 'bg-green-500'} flex-shrink-0 mt-1`}></div>
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex-shrink-0 mt-1 shadow-lg"></div>
                     <div>
-                      <p className="font-medium">Order Confirmed</p>
+                      <p className="font-medium text-foreground/90">Order Cancelled</p>
                       <p className="text-sm text-muted-foreground">
-                        {format(new Date(order.created_at), 'MMMM d, yyyy h:mm a')}
+                        {format(new Date(order.updated_at), 'MMMM d, yyyy h:mm a')}
                       </p>
                     </div>
                   </div>
-                  {(order.status === 'shipped' || order.status === 'delivered') && (
-                    <div className="relative flex gap-4">
-                      <div className={`w-5 h-5 rounded-full ${order.status === 'delivered' ? 'bg-green-500' : 'bg-blue-500'} flex-shrink-0 mt-1`}></div>
-                      <div>
-                        <p className="font-medium">Order Shipped</p>
-                        <p className="text-sm text-muted-foreground">Your order is on its way</p>
-                      </div>
-                    </div>
-                  )}
-                  {order.status === 'delivered' && (
-                    <div className="relative flex gap-4">
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
-                      <div>
-                        <p className="font-medium">Order Delivered</p>
-                        <p className="text-sm text-muted-foreground">Package has been delivered</p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-              {order.status === 'cancelled' && (
-                <div className="relative flex gap-4">
-                  <div className="w-5 h-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
-                  <div>
-                    <p className="font-medium">Order Cancelled</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Order Items */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <h2 className="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
+              Order Items
+            </h2>
+            <div className="divide-y divide-border/50">
+              {order.items?.map((item) => (
+                <div key={item.id} className="py-4 flex gap-4">
+                  <div className="relative h-24 w-24 flex-shrink-0 rounded-lg overflow-hidden group-hover:shadow-md transition-all duration-300">
+                    {item.product && (
+                      <Image
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    )}
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-medium text-foreground/90">
+                      {item.product?.name || 'Product Unavailable'}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      {format(new Date(order.updated_at), 'MMMM d, yyyy h:mm a')}
+                      Quantity: {item.quantity}
+                    </p>
+                    <p className="text-sm text-foreground/90">
+                      €{item.unit_price.toFixed(2)} each
+                    </p>
+                    <p className="font-medium mt-1 text-foreground/90">
+                      Total: €{item.total_price.toFixed(2)}
                     </p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Shipping Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <h2 className="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
+              Shipping Information
+            </h2>
+            <div className="bg-muted/30 backdrop-blur-sm rounded-lg p-6 border border-border/50">
+              <p className="font-medium text-foreground/90">{order.customer_name}</p>
+              <p className="text-muted-foreground">{order.shipping_address_line1}</p>
+              {order.shipping_address_line2 && (
+                <p className="text-muted-foreground">{order.shipping_address_line2}</p>
               )}
+              <p className="text-muted-foreground">
+                {order.shipping_city}, {order.shipping_postal_code}
+              </p>
+              <p className="text-muted-foreground">{order.shipping_country}</p>
+              {order.customer_phone && (
+                <p className="mt-2 text-muted-foreground">Phone: {order.customer_phone}</p>
+              )}
+              <p className="mt-2 text-muted-foreground">Email: {order.customer_email}</p>
             </div>
-          </div>
-        </div>
+          </motion.div>
 
-        {/* Order Items */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">Order Items</h2>
-          <div className="divide-y">
-            {order.items?.map((item) => (
-              <div key={item.id} className="py-4 flex gap-4">
-                <div className="relative h-24 w-24 flex-shrink-0">
-                  {item.product && (
-                    <img
-                      src={item.product.image_url}
-                      alt={item.product.name}
-                      className="object-cover rounded"
-                    />
-                  )}
+          {/* Order Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h2 className="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
+              Order Summary
+            </h2>
+            <div className="bg-muted/30 backdrop-blur-sm rounded-lg p-6 border border-border/50">
+              <div className="space-y-2">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span>€{(order.total_amount - order.shipping_fee).toFixed(2)}</span>
                 </div>
-                <div className="flex-grow">
-                  <h3 className="font-medium">
-                    {item.product?.name || 'Product Unavailable'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Quantity: {item.quantity}
-                  </p>
-                  <p className="text-sm">
-                    €{item.unit_price.toFixed(2)} each
-                  </p>
-                  <p className="font-medium mt-1">
-                    Total: €{item.total_price.toFixed(2)}
-                  </p>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Shipping</span>
+                  <span>€{order.shipping_fee.toFixed(2)}</span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Shipping Information */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">Shipping Information</h2>
-          <div className="bg-muted/50 rounded-lg p-4">
-            <p className="font-medium">{order.customer_name}</p>
-            <p>{order.shipping_address_line1}</p>
-            {order.shipping_address_line2 && (
-              <p>{order.shipping_address_line2}</p>
-            )}
-            <p>{order.shipping_city}, {order.shipping_postal_code}</p>
-            <p>{order.shipping_country}</p>
-            {order.customer_phone && (
-              <p className="mt-2">Phone: {order.customer_phone}</p>
-            )}
-            <p className="mt-2">Email: {order.customer_email}</p>
-          </div>
-        </div>
-
-        {/* Order Summary */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-          <div className="bg-muted/50 rounded-lg p-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>€{(order.total_amount - order.shipping_fee).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>€{order.shipping_fee.toFixed(2)}</span>
-              </div>
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>€{order.total_amount.toFixed(2)}</span>
+                <div className="border-t border-border/50 pt-2 mt-2">
+                  <div className="flex justify-between font-bold text-lg text-foreground/90">
+                    <span>Total</span>
+                    <span>€{order.total_amount.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );

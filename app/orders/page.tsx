@@ -5,8 +5,10 @@ import { useAuth } from '@/lib/auth-context';
 import { Order } from '@/types/order';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
-import { Package, Truck, CheckCircle, XCircle, Clock, Search, SortAsc, SortDesc, ArrowRight } from 'lucide-react';
+import { Package, Truck, CheckCircle, XCircle, Clock, Search, SortAsc, SortDesc, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const statusIcons = {
   pending: Clock,
@@ -144,191 +146,245 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Your Orders</h1>
+    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background before:absolute before:inset-0 before:bg-[url('/noise.png')] before:opacity-[0.02] before:mix-blend-overlay relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+      <div className="container mx-auto px-4 py-8 relative">
+        <h1 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">Your Orders</h1>
 
-      {/* Order Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-card rounded-lg shadow-sm border p-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Total Orders</h3>
-          <p className="text-2xl font-bold">{totalOrders}</p>
+        {/* Order Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm p-6 hover:shadow-md transition-all duration-300"
+          >
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Total Orders</h3>
+            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">{totalOrders}</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm p-6 hover:shadow-md transition-all duration-300"
+          >
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Total Spent</h3>
+            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">€{totalSpent.toFixed(2)}</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm p-6 hover:shadow-md transition-all duration-300"
+          >
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Active Orders</h3>
+            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">{statusCounts['processing'] || 0}</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm p-6 hover:shadow-md transition-all duration-300"
+          >
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Delivered Orders</h3>
+            <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">{statusCounts['delivered'] || 0}</p>
+          </motion.div>
         </div>
-        <div className="bg-card rounded-lg shadow-sm border p-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Total Spent</h3>
-          <p className="text-2xl font-bold">€{totalSpent.toFixed(2)}</p>
-        </div>
-        <div className="bg-card rounded-lg shadow-sm border p-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Active Orders</h3>
-          <p className="text-2xl font-bold">{statusCounts['processing'] || 0}</p>
-        </div>
-        <div className="bg-card rounded-lg shadow-sm border p-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Delivered Orders</h3>
-          <p className="text-2xl font-bold">{statusCounts['delivered'] || 0}</p>
-        </div>
-      </div>
 
-      {/* Filters and Search */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex-1 min-w-[200px]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search by Order ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-md border bg-background"
-            />
-          </div>
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 rounded-md border bg-background"
+        {/* Filters and Search */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex flex-wrap gap-4 mb-6"
         >
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <div className="flex items-center gap-2">
-          <select
-            value={sortField}
-            onChange={(e) => setSortField(e.target.value as 'created_at' | 'total_amount')}
-            className="px-4 py-2 rounded-md border bg-background"
-          >
-            <option value="created_at">Sort by Date</option>
-            <option value="total_amount">Sort by Amount</option>
-          </select>
-          <button
-            onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-            className="p-2 rounded-md border bg-background hover:bg-muted"
-          >
-            {sortDirection === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Orders List */}
-      <div className="space-y-6">
-        {paginatedOrders.map((order) => {
-          const StatusIcon = statusIcons[order.status];
-          return (
-            <div
-              key={order.id}
-              className="bg-card rounded-lg shadow-sm border p-6"
-            >
-              <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Order placed{' '}
-                    {format(new Date(order.created_at), 'MMMM d, yyyy')}
-                  </p>
-                  <p className="text-sm font-mono">#{order.id}</p>
-                </div>
-                <div className={`px-3 py-1 rounded-full flex items-center gap-2 ${statusColors[order.status]}`}>
-                  <StatusIcon className="w-4 h-4" />
-                  <span className="capitalize">{order.status}</span>
-                </div>
-              </div>
-
-              <div className="divide-y">
-                {order.items?.map((item) => (
-                  <div key={item.id} className="py-4 flex gap-4">
-                    <div className="relative h-20 w-20 flex-shrink-0">
-                      {item.product && (
-                        <img
-                          src={item.product.image_url}
-                          alt={item.product.name}
-                          className="object-cover rounded"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-medium">
-                        {item.product?.name || 'Product Unavailable'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Quantity: {item.quantity}
-                      </p>
-                      <p className="text-sm font-medium">
-                        €{item.unit_price.toFixed(2)} each
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex justify-between items-center border-t pt-4">
-                <div className="font-medium">
-                  Total: €{order.total_amount.toFixed(2)}
-                </div>
-                <Link
-                  href={`/orders/${order.id}`}
-                  className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-md hover:bg-primary/20 transition-colors"
-                >
-                  View Details
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              <div className="mt-4 pt-4 border-t">
-                <h4 className="font-medium mb-2">Shipping Address</h4>
-                <p className="text-sm text-muted-foreground">
-                  {order.shipping_address_line1}
-                  {order.shipping_address_line2 && (
-                    <>
-                      <br />
-                      {order.shipping_address_line2}
-                    </>
-                  )}
-                  <br />
-                  {order.shipping_city}, {order.shipping_postal_code}
-                  <br />
-                  {order.shipping_country}
-                </p>
-              </div>
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search by Order ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-lg border bg-card/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all duration-200"
+              />
             </div>
-          );
-        })}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-8 flex justify-center gap-2">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded-md border bg-background hover:bg-muted disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                  currentPage === i + 1
-                    ? 'bg-primary text-primary-foreground'
-                    : 'border bg-background hover:bg-muted'
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
           </div>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-md border bg-background hover:bg-muted disabled:opacity-50"
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg border bg-card/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all duration-200"
           >
-            Next
-          </button>
-        </div>
-      )}
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={sortField}
+              onChange={(e) => setSortField(e.target.value as 'created_at' | 'total_amount')}
+              className="px-4 py-2 rounded-lg border bg-card/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all duration-200"
+            >
+              <option value="created_at">Sort by Date</option>
+              <option value="total_amount">Sort by Amount</option>
+            </select>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+              className="p-2 rounded-lg border bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-200"
+            >
+              {sortDirection === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Orders List */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="space-y-6"
+        >
+          {paginatedOrders.map((order) => {
+            const StatusIcon = statusIcons[order.status];
+            return (
+              <motion.div
+                key={order.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm p-6 hover:shadow-md transition-all duration-300 group"
+              >
+                <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Order placed{' '}
+                      {format(new Date(order.created_at), 'MMMM d, yyyy')}
+                    </p>
+                    <p className="text-sm font-mono text-foreground/90">#{order.id}</p>
+                  </div>
+                  <div className={`px-4 py-2 rounded-lg flex items-center gap-2 ${statusColors[order.status]} bg-opacity-[0.15] backdrop-blur-sm`}>
+                    <StatusIcon className="w-4 h-4" />
+                    <span className="capitalize font-medium">{order.status}</span>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-border/50">
+                  {order.items?.map((item) => (
+                    <div key={item.id} className="py-4 flex gap-4">
+                      <div className="relative h-24 w-24 flex-shrink-0 rounded-lg overflow-hidden group-hover:shadow-md transition-all duration-300">
+                        {item.product && (
+                          <Image
+                            src={item.product.image_url}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-foreground/90">
+                          {item.product?.name || 'Product Unavailable'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Quantity: {item.quantity}
+                        </p>
+                        <p className="text-sm font-medium text-foreground/90">
+                          €{item.unit_price.toFixed(2)} each
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex justify-between items-center border-t border-border/50 pt-4">
+                  <div className="font-medium text-foreground/90">
+                    Total: €{order.total_amount.toFixed(2)}
+                  </div>
+                  <Link
+                    href={`/orders/${order.id}`}
+                    className="inline-flex items-center gap-2 bg-primary/10 text-primary px-6 py-2 rounded-lg hover:bg-primary/20 transition-all duration-300 group"
+                  >
+                    View Details
+                    <motion.span
+                      initial={{ x: 0 }}
+                      animate={{ x: 3 }}
+                      transition={{
+                        duration: 0.6,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        ease: "easeInOut"
+                      }}
+                    >
+                      →
+                    </motion.span>
+                  </Link>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <h4 className="font-medium text-foreground/90 mb-2">Shipping Address</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {order.shipping_address_line1}
+                    {order.shipping_address_line2 && (
+                      <>
+                        <br />
+                        {order.shipping_address_line2}
+                      </>
+                    )}
+                    <br />
+                    {order.shipping_city}, {order.shipping_postal_code}
+                    <br />
+                    {order.shipping_country}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="mt-8 flex justify-center"
+          >
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                    page === currentPage
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-card/50 backdrop-blur-sm hover:bg-card/70 border-border/50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 } 
