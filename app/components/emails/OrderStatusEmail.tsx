@@ -71,7 +71,7 @@ export default function OrderStatusEmail({ order, previousStatus }: OrderStatusE
           <Section style={section}>
             <Heading style={h2}>Order Details</Heading>
             <Text style={orderNumber}>
-              Order #{order.id}
+              Order #{order.display_order_number}
             </Text>
             <Text style={text}>
               Placed on {format(new Date(order.created_at), 'MMMM d, yyyy')}

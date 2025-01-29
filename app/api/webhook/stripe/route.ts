@@ -3,6 +3,14 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderStatusEmail } from '@/lib/email';
 
+interface OrderItem {
+  order_id: string;
+  product_id: string | undefined;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-12-18.acacia',
 });
@@ -13,6 +21,10 @@ const supabase = createClient(
   {
     auth: {
       persistSession: false,
+      autoRefreshToken: false,
+    },
+    db: {
+      schema: 'public'
     }
   }
 );
@@ -51,9 +63,31 @@ export async function POST(request: Request) {
         throw new Error('No user ID in session metadata');
       }
 
+      // Check if order already exists
+      const { data: existingOrder } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('stripe_session_id', session.id)
+        .single();
+
+      if (existingOrder) {
+        console.log('Order already exists for session:', session.id);
+        return NextResponse.json({ received: true });
+      }
+
       // Get line items from the session
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
         expand: ['data.price.product']
+      });
+
+      console.log('Retrieved line items:', {
+        sessionId: session.id,
+        itemsCount: lineItems.data.length,
+        items: lineItems.data.map(item => ({
+          priceId: item.price?.id,
+          productId: (item.price?.product as Stripe.Product)?.metadata?.product_id,
+          quantity: item.quantity
+        }))
       });
 
       // Parse shipping address from metadata
@@ -83,20 +117,82 @@ export async function POST(request: Request) {
         .single();
 
       if (orderError) {
+        console.error('Error creating order:', {
+          error: orderError,
+          orderData: {
+            user_id: userId,
+            total_amount: session.amount_total ? session.amount_total / 100 : 0,
+            status: 'processing',
+            stripe_session_id: session.id,
+          }
+        });
         throw new Error(`Failed to create order: ${orderError.message}`);
       }
 
       // Create order items
-      const orderItems = lineItems.data.map((item) => {
+      const orderItems: OrderItem[] = lineItems.data.map((item) => {
         const product = item.price?.product as Stripe.Product;
+        const productId = product?.metadata?.product_id;
+        
+        console.log('Processing line item:', {
+          stripeProductId: product?.id,
+          productMetadata: JSON.stringify(product?.metadata),
+          supabaseProductId: productId,
+          quantity: item.quantity,
+          productName: product?.name
+        });
+        
+        if (!productId) {
+          console.error('Missing product_id in metadata for product:', {
+            stripeProductId: product?.id,
+            productName: product?.name,
+            metadata: JSON.stringify(product?.metadata)
+          });
+        }
+
+        // Verify if productId is a valid UUID
+        const isValidUUID = productId && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(productId);
+        if (!isValidUUID) {
+          console.error('Invalid UUID format for product_id:', {
+            productId,
+            productName: product?.name
+          });
+        }
+        
         return {
           order_id: order.id,
-          product_id: product.metadata?.product_id, // Get the actual product ID from metadata
-          quantity: item.quantity,
+          product_id: productId,
+          quantity: item.quantity || 0,
           unit_price: item.price?.unit_amount ? item.price.unit_amount / 100 : 0,
           total_price: item.amount_total ? item.amount_total / 100 : 0,
         };
       });
+
+      console.log('Created order items:', JSON.stringify(orderItems, null, 2));
+
+      // First verify products exist in Supabase
+      for (const item of orderItems) {
+        if (!item.product_id) continue;
+
+        const { data: product, error: productError } = await supabase
+          .from('products')
+          .select('id, name, stock')
+          .eq('id', item.product_id)
+          .single();
+
+        if (productError || !product) {
+          console.error('Product not found in Supabase:', {
+            productId: item.product_id,
+            error: productError?.message
+          });
+        } else {
+          console.log('Found product in Supabase:', {
+            productId: item.product_id,
+            name: product.name,
+            currentStock: product.stock
+          });
+        }
+      }
 
       const { error: itemsError } = await supabase
         .from('order_items')
@@ -106,15 +202,49 @@ export async function POST(request: Request) {
         throw new Error(`Failed to create order items: ${itemsError.message}`);
       }
 
+      console.log('Successfully inserted order items into database');
+
       // Update product stock levels
       for (const item of orderItems) {
+        if (!item.product_id) {
+          console.error('Skipping stock update for item without product_id:', item);
+          continue;
+        }
+
+        console.log('Updating stock for product:', {
+          productId: item.product_id,
+          quantity: item.quantity
+        });
+
         const { error: stockError } = await supabase.rpc('update_product_stock', {
           p_product_id: item.product_id,
           p_quantity: item.quantity,
         });
 
         if (stockError) {
-          console.error(`Failed to update stock for product ${item.product_id}:`, stockError);
+          console.error(`Failed to update stock for product ${item.product_id}:`, {
+            error: stockError.message,
+            details: stockError.details,
+            hint: stockError.hint
+          });
+        } else {
+          // Verify the stock was actually updated
+          const { data: updatedProduct, error: verifyError } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', item.product_id)
+            .single();
+
+          if (verifyError) {
+            console.error('Failed to verify stock update:', {
+              productId: item.product_id,
+              error: verifyError.message
+            });
+          } else {
+            console.log(`Stock verification for product ${item.product_id}:`, {
+              updatedStock: updatedProduct.stock
+            });
+          }
         }
       }
 

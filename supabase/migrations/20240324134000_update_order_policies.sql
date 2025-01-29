@@ -5,6 +5,7 @@ DROP POLICY IF EXISTS "Users can view their own order items" ON order_items;
 DROP POLICY IF EXISTS "Users can create their own order items" ON order_items;
 DROP POLICY IF EXISTS "Service role can update orders" ON orders;
 DROP POLICY IF EXISTS "Service role can update order items" ON order_items;
+DROP POLICY IF EXISTS "Service role can insert orders" ON orders;
 
 -- Create new policies for orders
 CREATE POLICY "Users can view their own orders"
@@ -21,6 +22,10 @@ CREATE POLICY "Users can view their own orders"
 CREATE POLICY "Users can create their own orders"
   ON orders FOR INSERT
   WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Service role can insert orders"
+  ON orders FOR INSERT
+  WITH CHECK (auth.role() = 'service_role');
 
 CREATE POLICY "Service role can update orders"
   ON orders FOR UPDATE
@@ -51,9 +56,9 @@ CREATE POLICY "Users can view their own order items"
       AND (
         orders.user_id = auth.uid() OR
         EXISTS (
-          SELECT 1 FROM user_roles
-          WHERE user_roles.user_id = auth.uid()
-          AND user_roles.role = 'admin'
+          SELECT 1 FROM users
+          WHERE users.id = auth.uid()
+          AND users.metadata->>'role' = 'admin'
         )
       )
     )
@@ -69,12 +74,16 @@ CREATE POLICY "Users can create their own order items"
     )
   );
 
+CREATE POLICY "Service role can insert order items"
+  ON order_items FOR INSERT
+  WITH CHECK (auth.role() = 'service_role');
+
 CREATE POLICY "Admins can update order items"
   ON order_items FOR UPDATE
   USING (
     EXISTS (
-      SELECT 1 FROM user_roles
-      WHERE user_roles.user_id = auth.uid()
-      AND user_roles.role = 'admin'
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.metadata->>'role' = 'admin'
     )
   ); 

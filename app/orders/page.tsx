@@ -9,6 +9,7 @@ import { Package, Truck, CheckCircle, XCircle, Clock, Search, SortAsc, SortDesc,
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 const statusIcons = {
   pending: Clock,

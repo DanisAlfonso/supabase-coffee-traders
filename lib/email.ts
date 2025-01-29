@@ -23,7 +23,7 @@ export async function sendOrderStatusEmail(order: Order, previousStatus: string)
     const { data, error } = await resend.emails.send({
       from: 'orders@danisramirez.com',
       to: [order.customer_email],
-      subject: `Order Status Update - ${order.id}`,
+      subject: `Coffee Traders - Order #${order.display_order_number} Status Update`,
       html: html,
       tags: [
         {
@@ -38,7 +38,11 @@ export async function sendOrderStatusEmail(order: Order, previousStatus: string)
     });
 
     if (error) {
-      console.error('Resend API error:', error);
+      console.error('Resend API error:', {
+        error,
+        errorMessage: error.message,
+        errorName: error.name
+      });
       throw error;
     }
 
@@ -53,10 +57,16 @@ export async function sendOrderStatusEmail(order: Order, previousStatus: string)
   } catch (error) {
     console.error('Error sending order status email:', {
       error,
+      errorDetails: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      } : 'Unknown error type',
       orderId: order.id,
       to: order.customer_email,
       status: order.status
     });
-    throw error;
+    // No lanzamos el error aquí para que no afecte el flujo principal
+    return null;
   }
 } 

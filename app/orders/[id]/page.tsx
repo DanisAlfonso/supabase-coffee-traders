@@ -11,6 +11,7 @@ import Link from 'next/link';
 import DownloadInvoiceButton from '@/app/components/orders/DownloadInvoiceButton';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 const statusIcons = {
   pending: Clock,
@@ -184,10 +185,19 @@ export default function OrderDetailsPage() {
               <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
                 Order Details
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Placed on {format(new Date(order.created_at), 'MMMM d, yyyy')}
-              </p>
-              <p className="text-sm font-mono text-foreground/90">#{order.id}</p>
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    Order #{order.order_number}
+                  </h1>
+                  <div className="flex items-center gap-4">
+                    <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                    <p className="text-muted-foreground">
+                      Placed on {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <DownloadInvoiceButton order={order} />
